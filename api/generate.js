@@ -34,7 +34,8 @@ export default async function handler(req, res) {
   });
 
   const body = {
-    templateUuid: "4df2efa0f184dc4c9578803e478eb51c",
+    templateUuid: "4df2efa0f18d46dc9758803e478eb51c",
+    workflowUuid: "95198fded73f4d13a1d90fe520f1cda7", // ← 移到外层
     generateParams: {
       "6": {
         class_type: "CLIPTextEncode",
@@ -42,8 +43,7 @@ export default async function handler(req, res) {
           text: jellyfish
         }
       }
-    },
-    workflowUuid: "95198fded73f4d13a1d90fe520f1cda7"
+    }
   };
 
   try {
