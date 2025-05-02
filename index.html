@@ -1,65 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>梦幻水母生成器</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result, #status {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    #image-preview {
+      margin-top: 1rem;
+      max-width: 100%;
+    }
+    #download-button {
+      display: none;
+      margin-top: 10px;
+      font-size: 1rem;
+      text-decoration: none;
+      color: white;
+      background: #007bff;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+    .spinner {
+      margin: 1rem auto;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #4caf50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
 <body>
-  <h2>生成图像</h2>
-  <input id="jellyfish" placeholder="请输入提示词" style="width:300px;" />
-  <button id="generateBtn">生成</button>
-  <p id="status"></p>
-  <img id="resultImage" style="max-width: 100%; margin-top: 20px;" />
+  <h1>🌈 梦幻水母生成器</h1>
+
+  <div>
+    <p>请输入关键词：</p>
+    <input type="text" id="flower" placeholder="鲜花关键词" />
+    <input type="text" id="jellyfish" placeholder="水母关键词" />
+    <br />
+    <button onclick="generate()">开始生成</button>
+  </div>
+
+  <div class="spinner" id="spinner"></div>
+  <div id="result"></div>
+
+  <hr style="margin: 40px 0;" />
+
+  <div>
+    <h2>🔍 查询生成状态</h2>
+    <input type="text" id="uuidInput" placeholder="请输入生成 UUID" />
+    <br />
+    <button onclick="checkStatus()">查询状态</button>
+    <div id="status"></div>
+    <img id="image-preview" />
+    <br />
+    <a id="download-button" href="#" download="generated-image.png">⬇️ 点击下载图片</a>
+  </div>
 
   <script>
-    const generateBtn = document.getElementById('generateBtn');
-    const statusText = document.getElementById('status');
-    const resultImage = document.getElementById('resultImage');
-    const jellyfishInput = document.getElementById('jellyfish');
+    function showSpinner(show) {
+      document.getElementById('spinner').style.display = show ? 'block' : 'none';
+    }
 
-    generateBtn.addEventListener('click', async () => {
-      const jellyfish = jellyfishInput.value.trim();
-      if (!jellyfish) {
-        statusText.innerText = "提示词不能为空";
-        return;
-      }
+    async function generate() {
+      const flower = document.getElementById('flower').value.trim();
+      const jellyfish = document.getElementById('jellyfish').value.trim();
+      const result = document.getElementById('result');
+      const statusDiv = document.getElementById('status');
+      const imagePreview = document.getElementById('image-preview');
+      const downloadBtn = document.getElementById('download-button');
 
-      statusText.innerText = "正在提交任务...";
+      result.textContent = "🌀 正在提交生成任务...";
+      statusDiv.textContent = "";
+      imagePreview.src = "";
+      downloadBtn.style.display = "none";
+      showSpinner(true);
 
-      const res = await fetch("/api/generate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({ jellyfish })
-      });
-
-      const data = await res.json();
-      const generateUuid = data.generateUuid;
-
-      if (!generateUuid) {
-        statusText.innerText = "提交失败";
-        return;
-      }
-
-      statusText.innerText = "已提交，等待生成...";
-
-      const checkStatus = async () => {
-        const res = await fetch("/api/generate/status", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ generateUuid })
+      try {
+        const res = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ flower, jellyfish })
         });
 
-        const result = await res.json();
-        if (result.status === "success") {
-          resultImage.src = result.previewImageUrl;
-          statusText.innerText = "生成成功";
-        } else if (result.status === "fail") {
-          statusText.innerText = "生成失败";
-        } else {
-          statusText.innerText = "生成中...";
-          setTimeout(checkStatus, 2000);
+        const text = await res.text();
+        let data;
+        try {
+          data = JSON.parse(text);
+        } catch {
+          throw new Error("不是有效的 JSON 响应：" + text);
         }
-      };
 
-      checkStatus();
-    });
+        if (!res.ok) throw new Error(data.error || '生成失败');
+
+        const uuid = data.generateUuid;
+        result.innerHTML = `✅ 任务已提交<br>UUID：<code>${uuid}</code>`;
+        document.getElementById('uuidInput').value = uuid;
+        pollStatus(uuid);
+      } catch (err) {
+        result.textContent = "❌ 出错了：" + err.message;
+        showSpinner(false);
+      }
+    }
+
+    async function pollStatus(uuid) {
+      const statusDiv = document.getElementById('status');
+      const imagePreview = document.getElementById('image-preview');
+      const downloadBtn = document.getElementById('download-button');
+
+      let attempts = 0;
+      const maxAttempts = 50;
+
+      const interval = setInterval(async () => {
+        attempts++;
+        try {
+          const res = await fetch('/api/generate/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ generateUuid: uuid })
+          });
+
+          const data = await res.json();
+          if (data.status === 'done' && data.imageUrl) {
+            clearInterval(interval);
+            showSpinner(false);
+            statusDiv.innerHTML = `🎉 图片生成完成！<br><a href="${data.imageUrl}" target="_blank">点击查看原图</a>`;
+            imagePreview.src = data.imageUrl;
+            downloadBtn.href = data.imageUrl;
+            downloadBtn.style.display = "inline-block";
+          } else {
+            statusDiv.textContent = `⏳ ${data.status || "生成中"}...`;
+          }
+
+          if (attempts >= maxAttempts) {
+            clearInterval(interval);
+            showSpinner(false);
+            statusDiv.textContent = "⚠️ 查询超时，请稍后再试。";
+          }
+        } catch (err) {
+          clearInterval(interval);
+          showSpinner(false);
+          statusDiv.textContent = "❌ 查询失败：" + err.message;
+        }
+      }, 3000);
+    }
+
+    function checkStatus() {
+      const uuid = document.getElementById('uuidInput').value.trim();
+      if (!uuid) return alert("请输入 UUID");
+      showSpinner(true);
+      pollStatus(uuid);
+    }
   </script>
 </body>
+</html>
