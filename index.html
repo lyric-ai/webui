@@ -15,6 +15,13 @@
       overflow: hidden;
       cursor: none;
     }
+    canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 9999;
+      pointer-events: none;
+    }
     h1 {
       font-family: 'Satisfy', cursive;
       font-size: 3rem;
@@ -24,7 +31,6 @@
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
-      animation: fadeIn 1.5s ease-out;
     }
     .container {
       max-width: 600px;
@@ -35,7 +41,6 @@
       backdrop-filter: blur(15px);
       color: white;
       text-align: center;
-      animation: fadeIn 2s ease-out;
     }
     input {
       padding: 12px;
@@ -46,7 +51,6 @@
       margin-bottom: 1rem;
       background: rgba(255,255,255,0.2);
       color: white;
-      outline: none;
     }
     input::placeholder {
       color: rgba(255, 255, 255, 0.8);
@@ -56,92 +60,32 @@
       font-size: 1rem;
       border: none;
       border-radius: 30px;
-      background-color: #6c63ff;
+      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
       color: white;
       cursor: pointer;
-      box-shadow: 0 0 12px rgba(108, 99, 255, 0.5);
+      box-shadow: 0 0 15px rgba(102, 166, 255, 0.5);
       animation: pulse 2.5s infinite;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
     }
     button:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 20px rgba(108, 99, 255, 0.8);
+      box-shadow: 0 0 25px rgba(102, 166, 255, 0.9);
     }
     #result img {
       margin-top: 1.5rem;
       border-radius: 12px;
       max-width: 100%;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      animation: fadeIn 1s ease-in-out;
-    }
-    .cursor {
-      position: fixed;
-      top: 0; left: 0;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      pointer-events: none;
-      background: radial-gradient(circle, rgba(255,255,255,0.35), transparent);
-      mix-blend-mode: screen;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      transition: width 0.2s ease, height 0.2s ease;
-      backdrop-filter: blur(3px);
-    }
-    .bubbles {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      top: 0; left: 0;
-      z-index: 0;
-    }
-    .bubbles span {
-      position: absolute;
-      display: block;
-      width: 20px;
-      height: 20px;
-      background: rgba(255, 255, 255, 0.1);
-      border-radius: 50%;
-      bottom: -150px;
-      animation: bubble 20s linear infinite;
-    }
-    .bubbles span:nth-child(odd) {
-      width: 15px;
-      height: 15px;
-      background: rgba(255, 255, 255, 0.15);
-    }
-    @keyframes bubble {
-      0% { transform: translateY(0) scale(1); opacity: 0; }
-      50% { opacity: 1; }
-      100% { transform: translateY(-1000px) scale(0.5); opacity: 0; }
     }
     @keyframes pulse {
-      0% { box-shadow: 0 0 12px rgba(108, 99, 255, 0.4); }
-      50% { box-shadow: 0 0 20px rgba(108, 99, 255, 0.8); }
-      100% { box-shadow: 0 0 12px rgba(108, 99, 255, 0.4); }
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+      0% { box-shadow: 0 0 15px rgba(102, 166, 255, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(102, 166, 255, 0.8); }
+      100% { box-shadow: 0 0 15px rgba(102, 166, 255, 0.4); }
     }
   </style>
 </head>
 <body>
-  <div class="cursor" id="cursor"></div>
-  <div class="bubbles">
-    <!-- 动态泡泡 -->
-    <script>
-      for (let i = 0; i < 30; i++) {
-        const span = document.createElement('span');
-        span.style.left = Math.random() * 100 + '%';
-        span.style.animationDelay = Math.random() * 10 + 's';
-        document.querySelector('.bubbles').appendChild(span);
-      }
-    </script>
-  </div>
-
+  <canvas id="cursor-canvas"></canvas>
   <h1>光拾水母生成器</h1>
-
   <div class="container">
     <p>用一句梦幻提示，唤醒属于你的水母灵感。</p>
     <input type="text" id="jellyfish" placeholder="请输入提示词，如 dreamy jellyfish" />
@@ -151,12 +95,72 @@
   </div>
 
   <script>
-    const cursor = document.getElementById('cursor');
-    document.addEventListener("mousemove", e => {
-      cursor.style.left = e.clientX + "px";
-      cursor.style.top = e.clientY + "px";
+    // 粒子拖尾光标效果
+    const canvas = document.getElementById("cursor-canvas");
+    const ctx = canvas.getContext("2d");
+    let width = window.innerWidth;
+    let height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+
+    let particles = [];
+    const colors = ["#ffffff", "#ff9efc", "#b1fff2", "#ffd6a5"];
+
+    class Particle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = Math.random() * 4 + 1;
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.alpha = 1;
+        this.speedX = (Math.random() - 0.5) * 3;
+        this.speedY = (Math.random() - 0.5) * 3;
+      }
+
+      draw() {
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+
+      update() {
+        this.x += this.speedX;
+        this.y += this.speedY;
+        this.alpha -= 0.02;
+      }
+    }
+
+    function animate() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach((p, i) => {
+        p.update();
+        p.draw();
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+        }
+      });
+      requestAnimationFrame(animate);
+    }
+
+    document.addEventListener("mousemove", (e) => {
+      for (let i = 0; i < 5; i++) {
+        particles.push(new Particle(e.clientX, e.clientY));
+      }
     });
 
+    window.addEventListener("resize", () => {
+      width = window.innerWidth;
+      height = window.innerHeight;
+      canvas.width = width;
+      canvas.height = height;
+    });
+
+    animate();
+
+    // 图像生成流程
     async function generate() {
       const prompt = document.getElementById('jellyfish').value.trim();
       const resultDiv = document.getElementById('result');
