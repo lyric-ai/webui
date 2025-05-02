@@ -8,8 +8,8 @@ export default async function handler(req, res) {
 
   const accessKey = "NRXABtFaq2nlj-fRV4685Q";
   const secretKey = "VnS-NP3SKlOgws0zGW8OfkpOm-vohzvf";
-
   const { jellyfish } = req.body;
+
   if (!jellyfish) {
     return res.status(400).json({ error: "关键词不能为空" });
   }
@@ -33,16 +33,17 @@ export default async function handler(req, res) {
     SignatureNonce: nonce
   });
 
+  // ✅ 注意 workflowUuid 是放进 generateParams 的对象中
   const body = {
     templateUuid: "4df2efa0f18d46dc9758803e478eb51c",
-    workflowUuid: "95198fded73f4d13a1d90fe520f1cda7", // ← 移到外层
     generateParams: {
       "6": {
         class_type: "CLIPTextEncode",
         inputs: {
           text: jellyfish
         }
-      }
+      },
+      workflowUuid: "95198fded73f4d13a1d90fe520f1cda7" // ← 放在这里！！
     }
   };
 
@@ -50,7 +51,9 @@ export default async function handler(req, res) {
     const url = `https://openapi.liblibai.cloud${uri}?${queryParams.toString()}`;
     const libRes = await fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json'
+      },
       body: JSON.stringify(body)
     });
 
