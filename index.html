@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>梦幻水母生成器</title>
+<style>
+    body {
+      font-family: sans-serif;
+      padding: 2rem;
+      background: linear-gradient(to right, #a1c4fd, #c2e9fb);
+      text-align: center;
+    }
+    input, button {
+      padding: 10px;
+      margin: 10px;
+      font-size: 1rem;
+      border-radius: 8px;
+      border: none;
+    }
+    button {
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    #result, #status {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    #image-preview {
+      margin-top: 1rem;
+      max-width: 100%;
+    }
+    #download-button {
+      display: none;
+      margin-top: 10px;
+      font-size: 1rem;
+      text-decoration: none;
+      color: white;
+      background: #007bff;
+      padding: 10px 20px;
+      border-radius: 8px;
+    }
+    .spinner {
+      margin: 1rem auto;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #ccc;
+      border-top: 4px solid #4caf50;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      display: none;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+<h2>生成图像</h2>
+<input id="promptInput" placeholder="请输入提示词" style="width:300px;"/>
+<button id="generateBtn">生成</button>
+<p id="status"></p>
+<img id="resultImage" style="max-width: 100%; margin-top: 20px;"/>
+<script>
+    const generateBtn = document.getElementById('generateBtn');
+    const statusText = document.getElementById('status');
+    const resultImage = document.getElementById('resultImage');
+    const promptInput = document.getElementById('promptInput');
+
+    generateBtn.addEventListener('click', async () => {
+      const text = promptInput.value || "水母提示词";
+
+      statusText.innerText = "正在提交任务...";
+
+      const res = await fetch("/api/generate.js", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          templateUuid: "4df2efa0f184dc4c9578803e478eb51c",
+          generateParams: {
+            "6": {
+              class_type: "CLIPTextEncode",
+              inputs: { text }
+            }
+          },
+          workflowUuid: "95198fded73f4d13a1d90fe520f1cda7"
+        })
+      });
+
+      const data = await res.json();
+      const generateUuid = data.generateUuid;
+
+      if (!generateUuid) {
+        statusText.innerText = "提交失败";
+        return;
+      }
+
+      statusText.innerText = "已提交，等待生成...";
+
+      const checkStatus = async () => {
+        const res = await fetch("/api/generate/status.js", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ generateUuid })
+        });
+
+        const result = await res.json();
+        if (result.status === "success") {
+          resultImage.src = result.previewImageUrl;
+          statusText.innerText = "生成成功";
+        } else if (result.status === "fail") {
+          statusText.innerText = "生成失败";
+        } else {
+          statusText.innerText = "生成中...";
+          setTimeout(checkStatus, 2000);
+        }
+      };
+
+      checkStatus();
+    });
+  </script>
+</body>
+</html>
