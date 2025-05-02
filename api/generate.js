@@ -9,9 +9,9 @@ export default async function handler(req, res) {
   const accessKey = "NRXABtFaq2nlj-fRV4685Q";
   const secretKey = "VnS-NP3SKlOgws0zGW8OfkpOm-vohzvf";
 
-  const { jellyfish } = req.body;
+  const { flower, jellyfish } = req.body;
 
-  if (!jellyfish) {
+  if (!flower || !jellyfish) {
     return res.status(400).json({ error: "关键词不能为空" });
   }
 
@@ -36,37 +36,30 @@ export default async function handler(req, res) {
   });
 
   const body = {
-    templateUuid: "4df2efa0f184dc4c9578803e478eb51c",
+    templateUuid: "4df2efa0f18d46dc9758803e478eb51c",
     generateParams: {
-      "6": {
+      "63": {
         class_type: "CLIPTextEncode",
-        inputs: {
-          text: jellyfish
-        }
+        inputs: { text: jellyfish }
+      },
+      "65": {
+        class_type: "CLIPTextEncode",
+        inputs: { text: flower }
       }
     },
-    workflowUuid: "95198fded73f4d13a1d90fe520f1cda7"
+    workflowUuid: "5f7cf756fd804deeac558322dc5bd813"
   };
 
   try {
     const url = `https://openapi.liblibai.cloud${uri}?${queryParams.toString()}`;
-
     const libRes = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body)
     });
 
     const text = await libRes.text();
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      return res.status(500).json({ error: "返回非 JSON：" + text });
-    }
+    const data = JSON.parse(text);
 
     if (!libRes.ok || data?.code !== 0) {
       return res.status(500).json({ error: data?.msg || "生成失败" });
