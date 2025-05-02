@@ -4,38 +4,37 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>光拾水母生成器</title>
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&family=Satisfy&display=swap" rel="stylesheet">
   <style>
-    body {
+    html, body {
       margin: 0;
       padding: 0;
-      font-family: 'Roboto', sans-serif;
       background: radial-gradient(ellipse at top, #e0c3fc 0%, #8ec5fc 100%);
-      overflow-x: hidden;
-      position: relative;
-      min-height: 100vh;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
       cursor: none;
     }
 
     h1 {
-      font-family: 'Great Vibes', cursive;
+      font-family: 'Satisfy', cursive;
       font-size: 3rem;
-      color: white;
-      text-shadow: 0 0 10px rgba(255,255,255,0.7);
+      text-align: center;
       margin-top: 2rem;
+      background: linear-gradient(to right, #ffffff, #ffc4ec);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
     }
 
     .container {
       max-width: 600px;
-      margin: auto;
-      margin-top: 3rem;
+      margin: 3rem auto;
       padding: 2rem;
-      background: rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.08);
       border-radius: 20px;
       backdrop-filter: blur(15px);
-      box-shadow: 0 4px 30px rgba(0,0,0,0.1);
-      text-align: center;
       color: white;
+      text-align: center;
     }
 
     input {
@@ -45,8 +44,7 @@
       border-radius: 12px;
       border: none;
       margin-bottom: 1rem;
-      backdrop-filter: blur(5px);
-      background: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.2);
       color: white;
     }
 
@@ -58,68 +56,76 @@
       padding: 12px 30px;
       font-size: 1rem;
       border: none;
-      border-radius: 20px;
-      background-color: #6c63ff;
+      border-radius: 30px;
+      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
       color: white;
       cursor: pointer;
-      transition: 0.3s ease;
+      box-shadow: 0 0 15px rgba(102, 166, 255, 0.5);
+      animation: pulse 2.5s infinite;
     }
 
     button:hover {
-      background-color: #867eff;
       transform: scale(1.05);
-    }
-
-    .floating {
-      position: absolute;
-      bottom: -100px;
-      width: 100%;
-      animation: floatUp 25s linear infinite;
-      opacity: 0.2;
-    }
-
-    @keyframes floatUp {
-      0% { transform: translateY(0); }
-      100% { transform: translateY(-200%); }
-    }
-
-    #result {
-      margin-top: 1rem;
+      box-shadow: 0 0 25px rgba(102, 166, 255, 0.9);
     }
 
     #result img {
+      margin-top: 1.5rem;
+      border-radius: 12px;
       max-width: 100%;
-      border-radius: 10px;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      margin-top: 1rem;
     }
 
-    /* ✨ 自定义鼠标光标 */
+    /* 🌈 炫彩鼠标光标 */
     .cursor {
       position: fixed;
-      top: 0;
-      left: 0;
+      top: 0; left: 0;
       width: 40px;
       height: 40px;
-      border-radius: 50%;
       pointer-events: none;
-      background: radial-gradient(circle, rgba(255,255,255,0.35), transparent);
-      mix-blend-mode: screen;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, red, orange, yellow, green, cyan, blue, violet, red);
+      animation: spin 5s linear infinite;
       transform: translate(-50%, -50%);
-      transition: width 0.2s ease, height 0.2s ease, background 0.3s;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
       z-index: 9999;
-      backdrop-filter: blur(4px);
+      mix-blend-mode: screen;
     }
 
-    button:hover ~ .cursor {
-      width: 60px;
-      height: 60px;
-      background: radial-gradient(circle, rgba(255,255,255,0.5), transparent);
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+
+    .ripple {
+      position: fixed;
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      transform: translate(-50%, -50%) scale(0);
+      animation: ripple-effect 0.6s ease-out;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    @keyframes ripple-effect {
+      to {
+        transform: translate(-50%, -50%) scale(3);
+        opacity: 0;
+      }
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 15px rgba(102, 166, 255, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(102, 166, 255, 0.8); }
+      100% { box-shadow: 0 0 15px rgba(102, 166, 255, 0.4); }
     }
   </style>
 </head>
 <body>
-  <img class="floating" src="https://cdn.jsdelivr.net/gh/josephchang/cdn/jellyfish-float.png" alt="jellyfish" />
+  <!-- 光标 -->
+  <div class="cursor" id="cursor"></div>
 
   <h1>光拾水母生成器</h1>
 
@@ -131,17 +137,25 @@
     <div id="result"></div>
   </div>
 
-  <!-- 自定义光标元素 -->
-  <div class="cursor" id="cursor"></div>
-
   <script>
-    // ✨ 鼠标光标跟随逻辑
-    document.addEventListener("mousemove", (e) => {
-      const cursor = document.getElementById("cursor");
-      cursor.style.left = e.clientX + "px";
-      cursor.style.top = e.clientY + "px";
+    // 🌈 光标移动
+    const cursor = document.getElementById('cursor');
+    document.addEventListener('mousemove', e => {
+      cursor.style.left = e.clientX + 'px';
+      cursor.style.top = e.clientY + 'px';
     });
 
+    // 💫 点击涟漪动画
+    document.addEventListener('click', e => {
+      const ripple = document.createElement('div');
+      ripple.className = 'ripple';
+      ripple.style.left = e.clientX + 'px';
+      ripple.style.top = e.clientY + 'px';
+      document.body.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 600);
+    });
+
+    // 图像生成流程
     async function generate() {
       const prompt = document.getElementById('jellyfish').value.trim();
       const resultDiv = document.getElementById('result');
