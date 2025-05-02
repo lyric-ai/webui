@@ -20,7 +20,7 @@
 
       statusText.innerText = "正在提交任务...";
 
-      const res = await fetch("/api/generate.js", {
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -39,7 +39,7 @@
       statusText.innerText = "已提交，等待生成...";
 
       const checkStatus = async () => {
-        const res = await fetch("/api/generate/status.js", {
+        const res = await fetch("/api/generate/status", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
