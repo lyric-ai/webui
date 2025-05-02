@@ -14,6 +14,7 @@
       overflow-x: hidden;
       position: relative;
       min-height: 100vh;
+      cursor: none;
     }
 
     h1 {
@@ -92,6 +93,29 @@
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
       margin-top: 1rem;
     }
+
+    /* ✨ 自定义鼠标光标 */
+    .cursor {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(255,255,255,0.35), transparent);
+      mix-blend-mode: screen;
+      transform: translate(-50%, -50%);
+      transition: width 0.2s ease, height 0.2s ease, background 0.3s;
+      z-index: 9999;
+      backdrop-filter: blur(4px);
+    }
+
+    button:hover ~ .cursor {
+      width: 60px;
+      height: 60px;
+      background: radial-gradient(circle, rgba(255,255,255,0.5), transparent);
+    }
   </style>
 </head>
 <body>
@@ -107,7 +131,17 @@
     <div id="result"></div>
   </div>
 
+  <!-- 自定义光标元素 -->
+  <div class="cursor" id="cursor"></div>
+
   <script>
+    // ✨ 鼠标光标跟随逻辑
+    document.addEventListener("mousemove", (e) => {
+      const cursor = document.getElementById("cursor");
+      cursor.style.left = e.clientX + "px";
+      cursor.style.top = e.clientY + "px";
+    });
+
     async function generate() {
       const prompt = document.getElementById('jellyfish').value.trim();
       const resultDiv = document.getElementById('result');
