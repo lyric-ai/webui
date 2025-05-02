@@ -8,8 +8,8 @@ export default async function handler(req, res) {
 
   const accessKey = "NRXABtFaq2nlj-fRV4685Q";
   const secretKey = "VnS-NP3SKlOgws0zGW8OfkpOm-vohzvf";
-
   const { generateUuid } = req.body;
+
   if (!generateUuid) {
     return res.status(400).json({ error: "缺少 generateUuid" });
   }
@@ -53,9 +53,15 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: data?.msg || "状态查询失败" });
     }
 
-    return res.status(200).json(data.data);
+    const statusCode = data.data.generateStatus;
+    const isDone = statusCode === 5;
+    const imageUrl = data.data?.images?.[0]?.imageUrl || null;
+
+    return res.status(200).json({
+      status: isDone ? "done" : "pending",
+      imageUrl
+    });
   } catch (err) {
     return res.status(500).json({ error: "请求失败：" + err.message });
   }
 }
-
