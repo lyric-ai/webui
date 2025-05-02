@@ -10,7 +10,6 @@ export default async function handler(req, res) {
   const secretKey = "VnS-NP3SKlOgws0zGW8OfkpOm-vohzvf";
 
   const { generateUuid } = req.body;
-
   if (!generateUuid) {
     return res.status(400).json({ error: "缺少 generateUuid" });
   }
@@ -20,7 +19,6 @@ export default async function handler(req, res) {
   const uri = "/api/generate/comfy/status";
 
   const stringToSign = `${uri}&${timestamp}&${nonce}`;
-
   const signature = crypto.createHmac('sha1', secretKey)
     .update(stringToSign)
     .digest('base64')
@@ -37,23 +35,14 @@ export default async function handler(req, res) {
 
   try {
     const url = `https://openapi.liblibai.cloud${uri}?${queryParams.toString()}`;
-
     const libRes = await fetch(url, {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ generateUuid })
     });
 
     const text = await libRes.text();
-    let data;
-
-    try {
-      data = JSON.parse(text);
-    } catch {
-      return res.status(500).json({ error: "返回非 JSON：" + text });
-    }
+    const data = JSON.parse(text);
 
     if (!libRes.ok || data?.code !== 0) {
       return res.status(500).json({ error: data?.msg || "查询失败" });
