@@ -17,8 +17,8 @@ export default async function handler(req, res) {
   const timestamp = Date.now().toString();
   const nonce = Math.random().toString(36).substring(2, 15);
   const uri = "/api/generate/comfy/status";
-
   const stringToSign = `${uri}&${timestamp}&${nonce}`;
+
   const signature = crypto.createHmac('sha1', secretKey)
     .update(stringToSign)
     .digest('base64')
@@ -42,10 +42,15 @@ export default async function handler(req, res) {
     });
 
     const text = await libRes.text();
-    const data = JSON.parse(text);
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch {
+      return res.status(500).json({ error: "返回非 JSON：" + text });
+    }
 
     if (!libRes.ok || data?.code !== 0) {
-      return res.status(500).json({ error: data?.msg || "查询失败" });
+      return res.status(500).json({ error: data?.msg || "状态查询失败" });
     }
 
     return res.status(200).json(data.data);
@@ -53,3 +58,4 @@ export default async function handler(req, res) {
     return res.status(500).json({ error: "请求失败：" + err.message });
   }
 }
+
