@@ -6,141 +6,110 @@
   <title>光拾水母生成器</title>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* 全局重置 */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
+      width:100%; height:100%; overflow:hidden;
       background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
-      font-family: 'Quicksand', sans-serif;
-      cursor: none;
-      position: relative;
+      font-family:'Quicksand',sans-serif; cursor:none; position:relative;
     }
-
-    /* 标题 & 容器 */
     h1 {
-      position: relative; z-index: 10;
-      font-family: 'Great Vibes', cursive;
-      font-size: 3.5rem;
-      text-align: center;
-      margin-top: 2rem;
-      color: white;
-      text-shadow: 0 0 15px rgba(255,255,255,0.7);
+      position:relative; z-index:10;
+      font-family:'Great Vibes',cursive; font-size:3.5rem;
+      text-align:center; margin-top:2rem;
+      color:white; text-shadow:0 0 15px rgba(255,255,255,0.7);
     }
     .container {
-      position: relative; z-index: 10;
-      max-width: 600px; margin: 3rem auto;
-      padding: 2rem;
-      background: rgba(255,255,255,0.1);
-      border-radius: 20px;
-      backdrop-filter: blur(15px);
-      text-align: center;
-      color: white;
+      position:relative; z-index:10;
+      max-width:600px; margin:3rem auto; padding:2rem;
+      background:rgba(255,255,255,0.1); border-radius:20px;
+      backdrop-filter:blur(15px); text-align:center; color:white;
     }
-    input {
-      padding: 12px; width: 80%;
-      font-size: 1rem;
-      border-radius: 12px; border: none;
-      margin-bottom: 1rem;
-      background: rgba(255,255,255,0.2);
-      color: white;
-    }
-    input::placeholder { color: rgba(255,255,255,0.8); }
     button {
-      padding: 12px 30px;
-      font-size: 1rem; border: none;
-      border-radius: 30px;
-      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
-      color: white; cursor: pointer;
-      box-shadow: 0 0 15px rgba(252,197,255,0.5);
-      animation: pulse 2.5s infinite;
+      padding:12px 30px; font-size:1rem; border:none;
+      border-radius:30px;
+      background: linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%);
+      color:white; cursor:pointer;
+      box-shadow:0 0 15px rgba(252,197,255,0.5);
+      animation:pulse 2.5s infinite;
     }
     button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(252,197,255,0.9);
+      transform:scale(1.05);
+      box-shadow:0 0 25px rgba(252,197,255,0.9);
     }
     @keyframes pulse {
-      0% { box-shadow: 0 0 15px rgba(252,197,255,0.4); }
-      50% { box-shadow: 0 0 25px rgba(252,197,255,0.8); }
-      100% { box-shadow: 0 0 15px rgba(252,197,255,0.4); }
+      0%   {box-shadow:0 0 15px rgba(252,197,255,0.4);}
+      50%  {box-shadow:0 0 25px rgba(252,197,255,0.8);}
+      100% {box-shadow:0 0 15px rgba(252,197,255,0.4);}
     }
-
-    /* 粒子光标 */
+    #result img {
+      margin-top:1.5rem; max-width:100%;
+      border-radius:12px; box-shadow:0 0 15px rgba(0,0,0,0.2);
+      position:relative; z-index:10;
+      animation:fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
     canvas#cursor-canvas {
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 9999;
+      position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
     }
-
-    /* 漂浮图像共用样式 */
     .floating {
-      position: fixed;
-      width: 120px;
-      z-index: 1;
-      pointer-events: none;
+      position: fixed; width:120px; z-index:1; pointer-events:none;
       animation: floatAnim linear infinite;
     }
     @keyframes floatAnim {
-      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
-      10%  { opacity: 0.6; }
-      50%  { opacity: 1; }
-      100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+      0%   {transform:translateY(0) rotate(0deg); opacity:0;}
+      10%  {opacity:0.6;}
+      50%  {opacity:1;}
+      100% {transform:translateY(-120vh) rotate(360deg); opacity:0;}
     }
-    .jelly1 { left: 5%;  top: 90%; animation-duration: 28s; animation-delay: 0s; }
-    .jelly2 { left: 60%; top: 100%; animation-duration: 32s; animation-delay: 5s; }
-    .jelly3 { left: 20%; top: 95%; animation-duration: 36s; animation-delay: 10s; }
-    .jelly4 { left: 80%; top: 85%; animation-duration: 30s; animation-delay: 3s; }
-    .jelly5 { left: 40%; top: 105%;animation-duration: 34s; animation-delay: 7s; }
-
-    /* 生成结果 */
-    #result img {
-      margin-top: 1.5rem;
-      max-width: 100%;
-      border-radius: 12px;
-      box-shadow: 0 0 15px rgba(0,0,0,0.2);
-      position: relative; z-index: 10;
-      animation: fadeIn 1s ease-in-out;
-    }
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
+    .jelly1 { left:5%;  top:90%; animation-duration:28s; animation-delay:0s; }
+    .jelly2 { left:60%; top:100%;animation-duration:32s; animation-delay:5s; }
+    .jelly3 { left:20%; top:95%; animation-duration:36s; animation-delay:10s; }
+    .jelly4 { left:80%; top:85%; animation-duration:30s; animation-delay:3s; }
+    .jelly5 { left:40%; top:105%;animation-duration:34s; animation-delay:7s; }
   </style>
 </head>
 <body>
-  <!-- 粒子光标 Canvas -->
+  <!-- 光标粒子画布 -->
   <canvas id="cursor-canvas"></canvas>
 
-  <!-- 漂浮水母/珊瑚等图像（来自 Raw GitHub 地址） -->
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png"
-       class="floating jelly1" alt="jelly1" />
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png"
-       class="floating jelly2" alt="jelly2" />
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png"
-       class="floating jelly3" alt="jelly3" />
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00049_.png"
-       class="floating jelly4" alt="jelly4" />
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00050_.png"
-       class="floating jelly5" alt="jelly5" />
+  <!-- 漂浮图像 -->
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png" class="floating jelly2"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png" class="floating jelly3"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00049_.png" class="floating jelly4"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00050_.png" class="floating jelly5"/>
 
   <h1>光拾水母生成器</h1>
   <div class="container">
-    <p>用一句梦幻提示，唤醒属于你的水母灵感。</p>
-    <input type="text" id="jellyfish" placeholder="请输入提示词，如 dreamy jellyfish" />
-    <br />
-    <button onclick="generate()">开始生成</button>
+    <p>点击下方按钮，随机唤醒一只梦幻水母 🌌</p>
+    <button onclick="generate()">随机生成水母</button>
     <div id="result"></div>
   </div>
 
   <script>
-    // 粒子拖尾光标效果
+    // 预设提示词列表
+    const prompts = [
+      "a glowing jellyfish drifting in a purple ocean",
+      "neon jellyfish under a starry sky",
+      "fantasy pastel jellyfish surrounded by bubbles",
+      "ethereal jellyfish illuminated by moonlight",
+      "dreamlike jellyfish in cosmic sea",
+      "bioluminescent jellyfish in dark waters",
+      "translucent jellyfish floating amidst coral reef",
+      "surreal jellyfish with rainbow tentacles",
+      "celestial jellyfish in nebula background",
+      "soft pastel jellyfish with glowing aura"
+    ];
+
+    // 粒子光标效果
     const canvas = document.getElementById("cursor-canvas");
     const ctx = canvas.getContext("2d");
     let W = window.innerWidth, H = window.innerHeight;
     canvas.width = W; canvas.height = H;
-    const particles = [], colors = ["#fff","#ff9efc","#b1fff2","#ffd6a5"];
+    const particles = [], colors=["#fff","#ff9efc","#b1fff2","#ffd6a5"];
     class Particle {
       constructor(x,y){
-        this.x=x;this.y=y;
+        this.x=x; this.y=y;
         this.r=Math.random()*4+1;
         this.c=colors[Math.floor(Math.random()*colors.length)];
         this.a=1;
@@ -151,7 +120,7 @@
         ctx.globalAlpha=this.a;
         ctx.beginPath();
         ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
-        ctx.fillStyle=this.c;ctx.fill();
+        ctx.fillStyle=this.c; ctx.fill();
         ctx.globalAlpha=1;
       }
       update(){
@@ -161,7 +130,7 @@
     function loop(){
       ctx.clearRect(0,0,W,H);
       particles.forEach((p,i)=>{
-        p.update();p.draw();
+        p.update(); p.draw();
         if(p.a<=0) particles.splice(i,1);
       });
       requestAnimationFrame(loop);
@@ -170,55 +139,56 @@
       for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY));
     });
     window.addEventListener("resize",()=>{
-      W=window.innerWidth;H=window.innerHeight;
-      canvas.width=W;canvas.height=H;
+      W=window.innerWidth; H=window.innerHeight;
+      canvas.width=W; canvas.height=H;
     });
     loop();
 
-    // 图像生成流程
+    // 核心：随机生成
     async function generate(){
-      const prompt = document.getElementById('jellyfish').value.trim();
-      const resDiv = document.getElementById('result');
-      resDiv.innerHTML = "✨ 正在生成图像，请稍候…";
+      const prompt = prompts[Math.floor(Math.random()*prompts.length)];
+      const resDiv = document.getElementById("result");
+      resDiv.innerHTML = `✨ 使用提示：<code>${prompt}</code>，正在生成…`;
       try {
-        const res = await fetch('/api/generate',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
+        const r = await fetch("/api/generate", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
           body: JSON.stringify({ jellyfish: prompt })
         });
-        const { generateUuid } = await res.json();
+        const { generateUuid } = await r.json();
         pollStatus(generateUuid);
       } catch(err){
         resDiv.innerHTML = "❌ 提交失败：" + err.message;
       }
     }
+
     async function pollStatus(uuid){
-      const resDiv = document.getElementById('result');
-      let count=0, max=40;
+      const resDiv = document.getElementById("result");
+      let cnt=0, max=40;
       const iv = setInterval(async ()=>{
-        count++;
+        cnt++;
         try {
-          const r = await fetch('/api/generate/status',{
-            method:'POST',
-            headers:{'Content-Type':'application/json'},
+          const r = await fetch("/api/generate/status", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
             body: JSON.stringify({ generateUuid: uuid })
           });
           const data = await r.json();
-          if(data.status==='done' && data.imageUrl){
+          if(data.status==="done" && data.imageUrl){
             clearInterval(iv);
-            resDiv.innerHTML = `<img src="${data.imageUrl}" alt="result">`;
+            resDiv.innerHTML = `<img src="${data.imageUrl}" alt="jellyfish result">`;
           } else {
             resDiv.textContent = "⏳ 生成中…";
           }
-          if(count>=max){
+          if(cnt>=max){
             clearInterval(iv);
             resDiv.textContent = "⚠️ 查询超时，请稍后再试。";
           }
         } catch(e){
           clearInterval(iv);
-          resDiv.textContent = "❌ 查询失败：" + e.message;
+          resDiv.innerHTML = "❌ 查询失败：" + e.message;
         }
-      },3000);
+      }, 3000);
     }
   </script>
 </body>
