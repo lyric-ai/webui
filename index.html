@@ -67,35 +67,42 @@
       z-index:99999;
     }
 
-    /* 按钮组（横排） */
-   /* 通用 hover & 过渡保持不变 */
-.btn-group button {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  padding:12px 24px;
-  font-size:.1.2rem;
-  color:white;
-  border:none;
-  border-radius:30px;
-  cursor:pointer;
-  transition:transform .2s,box-shadow .2s;
-}
-/* hover 效果保持 */
-.btn-group button:hover {
-  transform:scale(1.1);
-  box-shadow:0 0 15px rgba(0,0,0,0.2);
-}
-    /* 按钮组容器：一行水平排列，不自动换行 */
+   /* 按钮组容器：一行水平排列，不换行 */
 .btn-group {
-  display: flex;           /* 启用 flex 布局 */
-  flex-direction: row;     /* 水平排列 */
-  flex-wrap: nowrap;       /* 禁止换行 */
-  gap: 20px;               /* 按钮之间留 20px 间距 */
-  justify-content: center; /* 整体水平居中 */
-  margin-bottom: 60px;     /* 距离下面内容留白 */
+  display: flex;             /* 启用 flex 布局 */
+  flex-direction: row;       /* 水平排列 */
+  flex-wrap: nowrap;         /* 禁止换行 */
+  gap: 20px;                 /* 按钮之间留 20px 间距 */
+  justify-content: center;   /* 整体水平居中 */
+  margin-bottom: 60px;       /* 底部留白 */
 }
 
+/* 按钮通用样式 */
+.btn-group button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  font-size: 1.2rem;         /* 修正了多余的小数点 */
+  color: white;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  transition: transform .2s, box-shadow .2s;
+}
+
+/* 按钮图标统一大小 */
+.btn-group .btn-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+
+/* hover 效果 */
+.btn-group button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(0,0,0,0.2);
+}
 
 /* 根据情绪分别指定背景渐变 */
 .btn-group button[data-emotion="happiness"] {
