@@ -1,47 +1,52 @@
-
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>光拾水母生成器</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;600&family=Satisfy&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <style>
     html, body {
       margin: 0;
       padding: 0;
-      background: radial-gradient(ellipse at top, #e0c3fc 0%, #8ec5fc 100%);
-      font-family: 'Poppins', sans-serif;
       overflow: hidden;
+      background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
+      font-family: 'Quicksand', sans-serif;
       cursor: none;
     }
-    canvas {
+
+    canvas, .jellyfish {
       position: fixed;
       top: 0;
       left: 0;
-      z-index: 9999;
+      z-index: 0;
       pointer-events: none;
     }
+
     h1 {
-      font-family: 'Satisfy', cursive;
-      font-size: 3rem;
+      font-family: 'Great Vibes', cursive;
+      font-size: 3.5rem;
       text-align: center;
       margin-top: 2rem;
-      background: linear-gradient(to right, #ffffff, #ffc4ec);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+      color: white;
+      text-shadow: 0 0 15px rgba(255,255,255,0.7);
+      z-index: 10;
+      position: relative;
     }
+
     .container {
       max-width: 600px;
       margin: 3rem auto;
       padding: 2rem;
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.1);
       border-radius: 20px;
       backdrop-filter: blur(15px);
       color: white;
       text-align: center;
+      z-index: 10;
+      position: relative;
     }
+
     input {
       padding: 12px;
       width: 80%;
@@ -52,39 +57,71 @@
       background: rgba(255,255,255,0.2);
       color: white;
     }
+
     input::placeholder {
       color: rgba(255, 255, 255, 0.8);
     }
+
     button {
       padding: 12px 30px;
       font-size: 1rem;
       border: none;
       border-radius: 30px;
-      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+      background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
       color: white;
       cursor: pointer;
-      box-shadow: 0 0 15px rgba(102, 166, 255, 0.5);
+      box-shadow: 0 0 15px rgba(252, 197, 255, 0.5);
       animation: pulse 2.5s infinite;
     }
+
     button:hover {
       transform: scale(1.05);
-      box-shadow: 0 0 25px rgba(102, 166, 255, 0.9);
+      box-shadow: 0 0 25px rgba(252, 197, 255, 0.9);
     }
+
     #result img {
       margin-top: 1.5rem;
       border-radius: 12px;
       max-width: 100%;
       box-shadow: 0 0 15px rgba(0,0,0,0.2);
     }
+
     @keyframes pulse {
-      0% { box-shadow: 0 0 15px rgba(102, 166, 255, 0.4); }
-      50% { box-shadow: 0 0 25px rgba(102, 166, 255, 0.8); }
-      100% { box-shadow: 0 0 15px rgba(102, 166, 255, 0.4); }
+      0% { box-shadow: 0 0 15px rgba(252, 197, 255, 0.4); }
+      50% { box-shadow: 0 0 25px rgba(252, 197, 255, 0.8); }
+      100% { box-shadow: 0 0 15px rgba(252, 197, 255, 0.4); }
+    }
+
+    .jellyfish {
+      width: 120px;
+      animation: float 30s infinite ease-in-out;
+    }
+
+    .jelly1 {
+      left: 10%;
+      top: 80%;
+      animation-delay: 0s;
+    }
+
+    .jelly2 {
+      left: 70%;
+      top: 100%;
+      animation-delay: 5s;
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10% { opacity: 0.6; }
+      50% { opacity: 1; }
+      100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
     }
   </style>
 </head>
 <body>
   <canvas id="cursor-canvas"></canvas>
+  <img src="https://cdn.pixabay.com/photo/2022/12/28/19/06/jellyfish-7683346_960_720.png" class="jellyfish jelly1" />
+  <img src="https://cdn.pixabay.com/photo/2022/12/28/19/06/jellyfish-7683346_960_720.png" class="jellyfish jelly2" />
+
   <h1>光拾水母生成器</h1>
   <div class="container">
     <p>用一句梦幻提示，唤醒属于你的水母灵感。</p>
@@ -95,7 +132,6 @@
   </div>
 
   <script>
-    // 粒子拖尾光标效果
     const canvas = document.getElementById("cursor-canvas");
     const ctx = canvas.getContext("2d");
     let width = window.innerWidth;
@@ -160,7 +196,6 @@
 
     animate();
 
-    // 图像生成流程
     async function generate() {
       const prompt = document.getElementById('jellyfish').value.trim();
       const resultDiv = document.getElementById('result');
