@@ -105,41 +105,50 @@
 }
 
 /* 微弱渐变：在原有两色基础上增加第三色过渡 */
+/* 按钮图标再放大 */
+.btn-group .btn-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+
+/* 强化渐变：使用更鲜明的三色渐变 */
 .btn-group button[data-emotion="happiness"] {
   background: linear-gradient(135deg,
-    #FFC0CB 0%,
-    #FFB6C1 70%,
-    #FF9EB8 100%
+    #FFD1DC 0%,
+    #FF69B4 50%,
+    #FF1493 100%
   );
 }
 .btn-group button[data-emotion="anger"] {
   background: linear-gradient(135deg,
-    #E74C3C 0%,
-    #FF6347 70%,
-    #FF483A 100%
+    #FF7F7F 0%,
+    #E74C3C 50%,
+    #C0392B 100%
   );
 }
 .btn-group button[data-emotion="sadness"] {
   background: linear-gradient(135deg,
-    #3498DB 0%,
-    #5DADE2 70%,
-    #4CA6E8 100%
+    #A9CCE3 0%,
+    #3498DB 50%,
+    #2E86C1 100%
   );
 }
 .btn-group button[data-emotion="fear"] {
   background: linear-gradient(135deg,
-    #2ECC71 0%,
-    #58D68D 70%,
-    #3FC17C 100%
+    #ABEBC6 0%,
+    #27AE60 50%,
+    #196F3D 100%
   );
 }
 .btn-group button[data-emotion="disgust"] {
   background: linear-gradient(135deg,
-    #F1C40F 0%,
-    #F7DC6F 70%,
-    #F4D03F 100%
+    #FCF3CF 0%,
+    #F1C40F 50%,
+    #B7950B 100%
   );
 }
+
 
 
     /* 结果区 */
