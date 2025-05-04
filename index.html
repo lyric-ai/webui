@@ -1,91 +1,86 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>光拾</title>
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@900&display=swap" rel="stylesheet">
   <style>
     /* reset */
     * { margin:0; padding:0; box-sizing:border-box; }
+
     html, body {
-      width:100%; height:100%;
-      overflow-y: auto; /* 允许竖直滚动 */
-      background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
+      width:100%; min-height:100%;
+      overflow-y: auto;
+      /* 将你上传的背景图放到 public/bg.png */
+      background: url("/bg.png") no-repeat center/cover;
       font-family:'Quicksand',sans-serif;
       cursor:none;
       position:relative;
     }
 
-    /* 水母光标 & 粒子 */
+    /* 标题：思源黑体 heavy（用 Noto Sans SC 900 替代）*/
+    h1 {
+      position:absolute;
+      top:20px; left:20px;
+      font-family:'Noto Sans SC', '思源黑体 Heavy', sans-serif;
+      font-weight:900;
+      font-size:5rem;         /* 原来 2.5rem *2 */
+      color:black;
+      text-shadow:0 0 5px rgba(255,255,255,0.5);
+      z-index:10;
+    }
+
+    /* 描述文本：左侧垂直居中 */
+    .description {
+      position:absolute;
+      left:20px;
+      top:50%; transform: translateY(-50%);
+      font-family:'Quicksand',sans-serif;
+      font-size:2rem;         /* 原来 1rem *2 */
+      line-height:1.4;
+      color:black;
+      white-space:pre-wrap;
+      z-index:10;
+    }
+
+    /* 粒子光标 & 自定义水母光标 */
+    canvas#cursor-canvas {
+      position:fixed; top:0; left:0;
+      pointer-events:none; z-index:9998;
+    }
     #cursor {
       position:fixed; width:32px; height:32px;
       pointer-events:none; transform:translate(-50%,-50%);
       z-index:9999;
     }
-    canvas#cursor-canvas {
-      position:fixed; top:0; left:0;
-      pointer-events:none; z-index:9998;
-    }
-
-    /* 漂浮装饰 */
-    .floating {
-      position:fixed; width:70px; pointer-events:none; z-index:1;
-      animation:floatAnim linear infinite;
-    }
-    @keyframes floatAnim {
-      0%   {transform:translateY(0) rotate(0deg); opacity:0;}
-      10%  {opacity:0.6;}
-      50%  {opacity:1;}
-      100% {transform:translateY(-120vh) rotate(360deg); opacity:0;}
-    }
-   .jelly1  { left:  5%;  top: 100%; animation-duration: 30s; animation-delay:  0s; }
-    .jelly2  { left: 15%;  top: 105%; animation-duration: 32s; animation-delay:  3s; }
-    .jelly3  { left: 25%;  top:  95%; animation-duration: 34s; animation-delay:  6s; }
-    .jelly4  { left: 35%;  top: 110%; animation-duration: 36s; animation-delay:  9s; }
-    .jelly5  { left: 45%;  top: 100%; animation-duration: 38s; animation-delay: 12s; }
-    .jelly6  { left: 55%;  top: 105%; animation-duration: 40s; animation-delay: 15s; }
-    .jelly7  { left: 65%;  top:  95%; animation-duration: 28s; animation-delay: 18s; }
-    .jelly8  { left: 75%;  top: 110%; animation-duration: 26s; animation-delay: 21s; }
-    .jelly9  { left: 85%;  top: 100%; animation-duration: 32s; animation-delay: 24s; }
-    .jelly10 { left: 95%;  top: 105%; animation-duration: 34s; animation-delay: 27s; }
-    .jelly11 { left: 50%;  top: 115%; animation-duration: 36s; animation-delay: 30s; }
-    /* 顶部标题 & 描述 */
-    h1 {
-      position:absolute; top:20px; left:20px;
-      font-family:'Great Vibes',cursive; font-size:2.5rem; font-weight:700;
-      color:white; text-shadow:0 0 10px rgba(255,255,255,0.8); z-index:10;
-    }
-    .description {
-      position:absolute; top:70px; left:20px;
-      color:white; font-size:1rem; line-height:1.5;
-      white-space:pre-wrap; z-index:10;
-    }
 
     /* 按钮组（横排） */
     .btn-group {
-      position:absolute; top:140px; left:50%;
+      position:absolute; top:150px; left:50%;
       transform:translateX(-50%);
       display:flex; gap:20px; z-index:10;
     }
     .btn-group button {
       display:flex; align-items:center; gap:8px;
-      padding:12px 24px; font-size:1.1rem; color:white;
-      background:linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%);
+      padding:14px 28px; font-size:1.2rem;
+      color:white;
+      background: linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%);
       border:none; border-radius:30px;
-      cursor:pointer; transition:transform .2s,box-shadow .2s;
+      cursor:pointer;
+      transition:transform .2s,box-shadow .2s;
     }
     .btn-group button:hover {
-      transform:scale(1.05);
-      box-shadow:0 0 15px rgba(102,166,255,0.7);
+      transform:scale(1.1);
+      box-shadow:0 0 15px rgba(102,166,255,0.8);
     }
-    .btn-icon { width:24px; height:24px; }
+    .btn-icon { width:28px; height:28px; }
 
     /* 结果区 */
     #result {
-      position:absolute; top:200px; left:50%;
+      position:absolute; top:260px; left:50%;
       transform:translateX(-50%);
-      width:60%; /* 容器宽度 */
+      width:60%;
       background:rgba(255,255,255,0.08);
       backdrop-filter:blur(10px);
       border-radius:20px;
@@ -116,21 +111,21 @@
 </head>
 <body>
   <!-- 漂浮装饰 -->
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-02.png" class="floating jelly1"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-03.png" class="floating jelly2"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-04.png" class="floating jelly3"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-05.png" class="floating jelly4"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-06.png" class="floating jelly5"/>
-<img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-07.png" class="floating jelly6"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-08.png" class="floating jelly7"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-09.png" class="floating jelly8"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-10.png" class="floating jelly9"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-11.png" class="floating jelly10"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-12.png" class="floating jelly11"/>
-  
+  <img src="/public/转印-02.png" class="floating jelly1"/>
+  <img src="/public/转印-03.png" class="floating jelly2"/>
+  <img src="/public/转印-04.png" class="floating jelly3"/>
+  <img src="/public/转印-05.png" class="floating jelly4"/>
+  <img src="/public/转印-06.png" class="floating jelly5"/>
+  <img src="/public/转印-07.png" class="floating jelly6"/>
+  <img src="/public/转印-08.png" class="floating jelly7"/>
+  <img src="/public/转印-09.png" class="floating jelly8"/>
+  <img src="/public/转印-10.png" class="floating jelly9"/>
+  <img src="/public/转印-11.png" class="floating jelly10"/>
+  <img src="/public/转印-12.png" class="floating jelly11"/>
+
   <!-- 粒子 & 光标 -->
   <canvas id="cursor-canvas"></canvas>
-  <img id="cursor" src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/jellyfish.png" alt="cursor"/>
+  <img id="cursor" src="/public/jellyfish.png" alt="cursor"/>
 
   <!-- 标题 & 描述 -->
   <h1>光拾</h1>
@@ -142,19 +137,19 @@
   <!-- 按钮组 -->
   <div class="btn-group">
     <button data-emotion="happiness">
-      <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-01.png" class="btn-icon" alt="快乐"/>快乐
+      <img src="/public/情绪按钮-01.png" class="btn-icon" alt="快乐"/>快乐
     </button>
     <button data-emotion="anger">
-      <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-02.png" class="btn-icon" alt="愤怒"/>愤怒
+      <img src="/public/情绪按钮-02.png" class="btn-icon" alt="愤怒"/>愤怒
     </button>
     <button data-emotion="sadness">
-      <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-03.png" class="btn-icon" alt="悲伤"/>悲伤
+      <img src="/public/情绪按钮-03.png" class="btn-icon" alt="悲伤"/>悲伤
     </button>
     <button data-emotion="fear">
-      <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-04.png" class="btn-icon" alt="恐惧"/>恐惧
+      <img src="/public/情绪按钮-04.png" class="btn-icon" alt="恐惧"/>恐惧
     </button>
     <button data-emotion="disgust">
-      <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-05.png" class="btn-icon" alt="厌恶"/>厌恶
+      <img src="/public/情绪按钮-05.png" class="btn-icon" alt="厌恶"/>厌恶
     </button>
   </div>
 
@@ -166,10 +161,11 @@
 
   <script>
     // 粒子拖尾
-    const canvas = document.getElementById("cursor-canvas"), ctx = canvas.getContext("2d");
+    const canvas = document.getElementById("cursor-canvas"),
+          ctx = canvas.getContext("2d");
     let W = window.innerWidth, H = window.innerHeight;
-    canvas.width = W; canvas.height = H;
-    const particles = [], colors = ["#fff","#ff9efc","#b1fff2","#ffd6a5"];
+    canvas.width=W; canvas.height=H;
+    const particles = [], colors=["#fff","#ff9efc","#b1fff2","#ffd6a5"];
     class Particle {
       constructor(x,y){
         this.x=x; this.y=y; this.r=Math.random()*4+1;
@@ -177,7 +173,8 @@
         this.vx=(Math.random()-0.5)*3; this.vy=(Math.random()-0.5)*3;
       }
       draw(){
-        ctx.globalAlpha=this.a; ctx.beginPath();
+        ctx.globalAlpha=this.a;
+        ctx.beginPath();
         ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
         ctx.fillStyle=this.c; ctx.fill();
         ctx.globalAlpha=1;
@@ -190,8 +187,8 @@
       requestAnimationFrame(animate);
     }
     document.addEventListener("mousemove", e=>{
-      document.getElementById("cursor").style.left=e.clientX+"px";
-      document.getElementById("cursor").style.top=e.clientY+"px";
+      const cur = document.getElementById("cursor");
+      cur.style.left=e.clientX+"px"; cur.style.top=e.clientY+"px";
       for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY));
     });
     window.addEventListener("resize", ()=>{
@@ -200,37 +197,38 @@
     animate();
 
     // 提示词列表
-    const colorsList = [/*…填入你的颜色数组…*/];
-    const flowersList= [/*…填入你的花朵数组…*/];
+    const colorsList=[/*…*/], flowersList=[/*…*/];
 
     // 按钮点击
     document.querySelectorAll(".btn-group button").forEach(btn=>{
       btn.addEventListener("click", async ()=>{
-        const emotion = btn.dataset.emotion;
-        const color = colorsList[Math.floor(Math.random()*colorsList.length)];
-        const flower = flowersList[Math.floor(Math.random()*flowersList.length)];
-        const prompt = `a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
-        const resDiv = document.getElementById("result");
-        resDiv.innerHTML = `✨ 提示词：<code>${prompt}</code><br>正在生成…`;
+        const emotion=btn.dataset.emotion;
+        const color=colorsList[Math.floor(Math.random()*colorsList.length)];
+        const flower=flowersList[Math.floor(Math.random()*flowersList.length)];
+        const prompt=`a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
+        const resDiv=document.getElementById("result");
+        resDiv.innerHTML=`✨ 提示词：<code>${prompt}</code><br>正在生成…`;
         try {
-          const r1 = await fetch("/api/generate", {
-            method:"POST", headers:{"Content-Type":"application/json"},
+          const r1=await fetch("/api/generate",{
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
             body:JSON.stringify({jellyfish:prompt})
           });
-          const { generateUuid } = await r1.json();
-          let count=0,max=40;
-          const iv = setInterval(async ()=>{
+          const {generateUuid}=await r1.json();
+          let count=0, max=40;
+          const iv=setInterval(async ()=>{
             count++;
-            const r2 = await fetch("/api/generate/status", {
-              method:"POST", headers:{"Content-Type":"application/json"},
+            const r2=await fetch("/api/generate/status",{
+              method:"POST",
+              headers:{"Content-Type":"application/json"},
               body:JSON.stringify({generateUuid})
             });
-            const data = await r2.json();
+            const data=await r2.json();
             if(data.status==="done"&&data.imageUrl){
               clearInterval(iv);
-              resDiv.innerHTML = `<img src="${data.imageUrl}" alt="result">`;
-              const dl = document.getElementById("downloadBtn");
-              dl.href = data.imageUrl; dl.style.display="inline-block";
+              resDiv.innerHTML=`<img src="${data.imageUrl}" alt="result">`;
+              const dl=document.getElementById("downloadBtn");
+              dl.href=data.imageUrl; dl.style.display="inline-block";
             } else {
               resDiv.textContent="⏳ 生成中…";
             }
