@@ -72,7 +72,7 @@
   display: flex;             /* 启用 flex 布局 */
   flex-direction: row;       /* 水平排列 */
   flex-wrap: nowrap;         /* 禁止换行 */
-  gap: 20px;                 /* 按钮之间留 20px 间距 */
+  gap: 25px;                 /* 按钮之间留 20px 间距 */
   justify-content: center;   /* 整体水平居中 */
   margin-bottom: 60px;       /* 底部留白 */
 }
@@ -97,14 +97,7 @@
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
 }
 
-/* 按钮图标稍微放大 */
-.btn-group .btn-icon {
-  width: 28px;
-  height: 28px;
-  object-fit: contain;
-}
 
-/* 微弱渐变：在原有两色基础上增加第三色过渡 */
 /* 按钮图标再放大 */
 .btn-group .btn-icon {
   width: 32px;
@@ -112,40 +105,40 @@
   object-fit: contain;
 }
 
-/* 强化渐变：使用更鲜明的三色渐变 */
+/* 降低饱和度后的柔和渐变 */
 .btn-group button[data-emotion="happiness"] {
   background: linear-gradient(135deg,
-    #FFD1DC 0%,
-    #FF69B4 50%,
-    #FF1493 100%
+    #F8BBD0 0%,   /* 浅粉 */
+    #F06292 50%,  /* 柔和粉 */
+    #EC407A 100%  /* 低饱和粉 */
   );
 }
 .btn-group button[data-emotion="anger"] {
   background: linear-gradient(135deg,
-    #FF7F7F 0%,
-    #E74C3C 50%,
-    #C0392B 100%
+    #E57373 0%,   /* 浅珊瑚 */
+    #EF5350 50%,  /* 柔和红 */
+    #E53935 100%  /* 低饱和枣红 */
   );
 }
 .btn-group button[data-emotion="sadness"] {
   background: linear-gradient(135deg,
-    #A9CCE3 0%,
-    #3498DB 50%,
-    #2E86C1 100%
+    #90CAF9 0%,   /* 浅天蓝 */
+    #64B5F6 50%,  /* 柔和蓝 */
+    #42A5F5 100%  /* 低饱和深蓝 */
   );
 }
 .btn-group button[data-emotion="fear"] {
   background: linear-gradient(135deg,
-    #ABEBC6 0%,
-    #27AE60 50%,
-    #196F3D 100%
+    #A5D6A7 0%,   /* 浅薄荷绿 */
+    #81C784 50%,  /* 柔和绿 */
+    #66BB6A 100%  /* 低饱和常绿 */
   );
 }
 .btn-group button[data-emotion="disgust"] {
   background: linear-gradient(135deg,
-    #FCF3CF 0%,
-    #F1C40F 50%,
-    #B7950B 100%
+    #FFF59D 0%,   /* 浅米黄 */
+    #FFF176 50%,  /* 柔和黄 */
+    #FDD835 100%  /* 低饱和焦糖 */
   );
 }
 
