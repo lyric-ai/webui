@@ -91,35 +91,56 @@
   transition: transform .2s, box-shadow .2s;
 }
 
-/* 按钮图标统一大小 */
-.btn-group .btn-icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
-}
-
 /* hover 效果 */
 .btn-group button:hover {
   transform: scale(1.05);
   box-shadow: 0 0 15px rgba(0,0,0,0.2);
 }
 
-/* 根据情绪分别指定背景渐变 */
+/* 按钮图标稍微放大 */
+.btn-group .btn-icon {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
+/* 微弱渐变：在原有两色基础上增加第三色过渡 */
 .btn-group button[data-emotion="happiness"] {
-  background: linear-gradient(135deg, #FFC0CB 0%, #FFB6C1 100%);
+  background: linear-gradient(135deg,
+    #FFC0CB 0%,
+    #FFB6C1 70%,
+    #FF9EB8 100%
+  );
 }
 .btn-group button[data-emotion="anger"] {
-  background: linear-gradient(135deg, #E74C3C 0%, #FF6347 100%);
+  background: linear-gradient(135deg,
+    #E74C3C 0%,
+    #FF6347 70%,
+    #FF483A 100%
+  );
 }
 .btn-group button[data-emotion="sadness"] {
-  background: linear-gradient(135deg, #3498DB 0%, #5DADE2 100%);
+  background: linear-gradient(135deg,
+    #3498DB 0%,
+    #5DADE2 70%,
+    #4CA6E8 100%
+  );
 }
 .btn-group button[data-emotion="fear"] {
-  background: linear-gradient(135deg, #2ECC71 0%, #58D68D 100%);
+  background: linear-gradient(135deg,
+    #2ECC71 0%,
+    #58D68D 70%,
+    #3FC17C 100%
+  );
 }
 .btn-group button[data-emotion="disgust"] {
-  background: linear-gradient(135deg, #F1C40F 0%, #F7DC6F 100%);
+  background: linear-gradient(135deg,
+    #F1C40F 0%,
+    #F7DC6F 70%,
+    #F4D03F 100%
+  );
 }
+
 
     /* 结果区 */
     #result {
