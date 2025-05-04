@@ -23,19 +23,20 @@
       z-index: 10;
       background: rgba(255,255,255,0.7);
       backdrop-filter: blur(5px);
-      padding: 20px;
+      padding: 40px 20px 80px;
       border-radius: 16px;
       max-width: 1200px;
-      margin: 0 auto;
+      margin: 100px auto 40px;
     }
 
     /* 标题 */
     h1 {
       font-family:'Noto Sans SC','思源黑体 Heavy',sans-serif;
-      font-size:5rem; font-weight:900;
+      font-size:5rem;
+      font-weight:900;
       color:#333;
       text-shadow:0 0 5px rgba(255,255,255,0.5);
-      margin-bottom: 10px;
+      margin-bottom: 20px;
     }
 
     /* 描述 */
@@ -44,22 +45,16 @@
       line-height:1.4;
       color:#333;
       white-space:pre-wrap;
-      margin-bottom: 30px;
+      margin-bottom: 40px;
     }
 
-    /* 粒子光标 */
-    canvas#cursor-canvas { position:fixed; top:0; left:0; pointer-events:none; z-index:9998; }
-    #cursor {
-      position:fixed; width:32px; height:32px;
-      pointer-events:none; transform:translate(-50%,-50%);
-      z-index:9999;
-    }
-
-    /* 按钮组 */
+    /* 按钮组（横排） */
     .btn-group {
       display:flex;
       gap:20px;
-      margin-bottom: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 60px;
     }
     .btn-group button {
       display:flex; align-items:center; gap:8px;
@@ -78,6 +73,7 @@
     #result {
       width:100%;
       background:rgba(255,255,255,0.8);
+      backdrop-filter:blur(10px);
       border-radius:20px;
       padding:20px;
       text-align:center;
@@ -136,14 +132,26 @@
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-08.png"  class="floating jelly7"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-09.png"  class="floating jelly8"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-10.png"  class="floating jelly9"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-11.png"  class="floating jelly10"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-12.png"  class="floating jelly11"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-11.png" class="floating jelly10"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/转印-12.png" class="floating jelly11"/>
 
-  <!-- 粒子 & 光标 -->
+  <!-- 粒子&光标 -->
   <canvas id="cursor-canvas"></canvas>
-  <img id="cursor" src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/jellyfish.png" alt="cursor"/>
+  <!-- 自定义水母光标放在最末尾，z-index 最高 -->
+  <img
+    id="cursor"
+    src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/jellyfish.png"
+    alt="cursor"
+    style="
+      position: fixed;
+      width: 48px;
+      height: 48px;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+      z-index: 99999;
+    "
+  />
 
-  <!-- 整个 UI 包裹在半透明底板内 -->
   <div class="ui-wrap">
     <h1>光拾</h1>
     <div class="description">
@@ -153,19 +161,24 @@
 
     <div class="btn-group">
       <button data-emotion="happiness">
-        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-01.png" class="btn-icon" alt="快乐"/>快乐
+        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-01.png" class="btn-icon" alt="快乐"/>
+        快乐
       </button>
       <button data-emotion="anger">
-        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-02.png" class="btn-icon" alt="愤怒"/>愤怒
+        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-02.png" class="btn-icon" alt="愤怒"/>
+        愤怒
       </button>
       <button data-emotion="sadness">
-        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-03.png" class="btn-icon" alt="悲伤"/>悲伤
+        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-03.png" class="btn-icon" alt="悲伤"/>
+        悲伤
       </button>
       <button data-emotion="fear">
-        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-04.png" class="btn-icon" alt="恐惧"/>恐惧
+        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-04.png" class="btn-icon" alt="恐惧"/>
+        恐惧
       </button>
       <button data-emotion="disgust">
-        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-05.png" class="btn-icon" alt="厌恶"/>厌恶
+        <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/情绪按钮-05.png" class="btn-icon" alt="厌恶"/>
+        厌恶
       </button>
     </div>
 
@@ -174,7 +187,92 @@
   </div>
 
   <script>
-    // ...（粒子 & 按钮逻辑同之前）...
+    // 粒子拖尾
+    const canvas = document.getElementById("cursor-canvas"),
+          ctx = canvas.getContext("2d");
+    let W = window.innerWidth, H = window.innerHeight;
+    canvas.width = W; canvas.height = H;
+    const particles = [], colors = ["#fff","#ff9efc","#b1fff2","#ffd6a5"];
+    class Particle {
+      constructor(x,y){
+        this.x=x; this.y=y; this.r=Math.random()*4+1;
+        this.c=colors[Math.floor(Math.random()*colors.length)]; this.a=1;
+        this.vx=(Math.random()-0.5)*3; this.vy=(Math.random()-0.5)*3;
+      }
+      draw(){
+        ctx.globalAlpha=this.a; ctx.beginPath();
+        ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
+        ctx.fillStyle=this.c; ctx.fill();
+        ctx.globalAlpha=1;
+      }
+      update(){ this.x+=this.vx; this.y+=this.vy; this.a-=0.02; }
+    }
+    function animate(){
+      ctx.clearRect(0,0,W,H);
+      particles.forEach((p,i)=>{ p.update(); p.draw(); if(p.a<=0) particles.splice(i,1); });
+      requestAnimationFrame(animate);
+    }
+    document.addEventListener("mousemove", e=>{
+      // 更新光标
+      const cur = document.getElementById("cursor");
+      cur.style.left = e.clientX + "px";
+      cur.style.top  = e.clientY + "px";
+      // 生成粒子
+      for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY));
+    });
+    window.addEventListener("resize", ()=>{
+      W = innerWidth; H = innerHeight;
+      canvas.width = W; canvas.height = H;
+    });
+    animate();
+
+    // 提示词列表
+    const colorsList=[/*…填入你的颜色数组…*/],
+          flowersList=[/*…填入你的花朵数组…*/];
+
+    // 按钮逻辑
+    document.querySelectorAll(".btn-group button").forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const emotion = btn.dataset.emotion;
+        const color   = colorsList[Math.floor(Math.random()*colorsList.length)];
+        const flower  = flowersList[Math.floor(Math.random()*flowersList.length)];
+        const prompt  = `a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
+        const resDiv  = document.getElementById("result");
+        resDiv.innerHTML = `✨ 提示词：<code>${prompt}</code><br>正在生成…`;
+        try {
+          const r1 = await fetch("/api/generate", {
+            method:"POST",
+            headers:{"Content-Type":"application/json"},
+            body:JSON.stringify({jellyfish:prompt})
+          });
+          const { generateUuid } = await r1.json();
+          let count=0, max=40;
+          const iv = setInterval(async ()=>{
+            count++;
+            const r2 = await fetch("/api/generate/status", {
+              method:"POST",
+              headers:{"Content-Type":"application/json"},
+              body:JSON.stringify({generateUuid})
+            });
+            const data = await r2.json();
+            if(data.status==="done" && data.imageUrl){
+              clearInterval(iv);
+              resDiv.innerHTML = `<img src="${data.imageUrl}" alt="result">`;
+              const dl = document.getElementById("downloadBtn");
+              dl.href = data.imageUrl; dl.style.display = "inline-block";
+            } else {
+              resDiv.textContent="⏳ 生成中…";
+            }
+            if(count>=max){
+              clearInterval(iv);
+              resDiv.textContent="⚠️ 查询超时，请稍后再试。";
+            }
+          },3000);
+        } catch(err){
+          resDiv.textContent="❌ 提交失败："+err.message;
+        }
+      });
+    });
   </script>
 </body>
 </html>
