@@ -10,11 +10,41 @@
     html, body {
       width: 100%; height: 100%; overflow: hidden;
       background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
-      font-family: 'Quicksand', sans-serif; cursor: none; position: relative;
+      font-family: 'Quicksand', sans-serif;
+      cursor: none; position: relative;
     }
-    canvas#cursor-canvas {
-      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
+    /* 自定义彩虹波纹光标 */
+    #cursor {
+      position: fixed;
+      top: 0; left: 0;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: conic-gradient(red, orange, yellow, green, cyan, blue, violet, red);
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      animation: spin 5s linear infinite;
+      mix-blend-mode: screen;
     }
+    @keyframes spin {
+      from { transform: translate(-50%, -50%) rotate(0deg); }
+      to   { transform: translate(-50%, -50%) rotate(360deg); }
+    }
+    .ripple {
+      position: fixed;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      border-image: conic-gradient(red, orange, yellow, green, cyan, blue, violet, red) 1;
+      pointer-events: none;
+      transform: translate(-50%, -50%) scale(1);
+      animation: ripple-effect 0.8s ease-out forwards;
+      z-index: 9998;
+    }
+    @keyframes ripple-effect {
+      to { transform: translate(-50%, -50%) scale(6); opacity: 0; }
+    }
+
     h1 {
       position: relative; z-index: 10;
       font-family: 'Great Vibes', cursive; font-size: 3.5rem;
@@ -53,6 +83,7 @@
       animation: fadeIn 1s ease-in-out;
     }
     @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+
     .floating {
       position: fixed; width: 120px; z-index: 1; pointer-events: none;
       animation: floatAnim linear infinite;
@@ -71,8 +102,8 @@
   </style>
 </head>
 <body>
-  <!-- 粒子光标 Canvas -->
-  <canvas id="cursor-canvas"></canvas>
+  <!-- 自定义彩虹波纹光标 -->
+  <div id="cursor"></div>
 
   <!-- 漂浮装饰图像 -->
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1" />
@@ -95,6 +126,21 @@
   </div>
 
   <script>
+    // 彩虹光标跟随与波纹
+    const cursor = document.getElementById("cursor");
+    document.addEventListener("mousemove", e => {
+      cursor.style.left = e.clientX + "px";
+      cursor.style.top = e.clientY + "px";
+    });
+    document.addEventListener("click", e => {
+      const ripple = document.createElement("div");
+      ripple.className = "ripple";
+      ripple.style.left = e.clientX + "px";
+      ripple.style.top  = e.clientY + "px";
+      document.body.appendChild(ripple);
+      setTimeout(() => ripple.remove(), 800);
+    });
+
     // 颜色与花朵列表
     const colorsList = [
       "blue-purple","blue and yellow spotted","white luminescent-spotted",
@@ -116,95 +162,44 @@
       "aloe","hibiscus","primrose"
     ];
 
-    // 粒子光标效果
-    const canvas = document.getElementById("cursor-canvas");
-    const ctx = canvas.getContext("2d");
-    let W = window.innerWidth, H = window.innerHeight;
-    canvas.width = W; canvas.height = H;
-    const particles = [], colors = ["#fff","#ff9efc","#b1fff2","#ffd6a5"];
-    class Particle {
-      constructor(x,y){
-        this.x = x; this.y = y;
-        this.r = Math.random()*4 + 1;
-        this.c = colors[Math.floor(Math.random()*colors.length)];
-        this.a = 1;
-        this.vx = (Math.random()-0.5)*3;
-        this.vy = (Math.random()-0.5)*3;
-      }
-      draw(){
-        ctx.globalAlpha = this.a;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
-        ctx.fillStyle = this.c; ctx.fill();
-        ctx.globalAlpha = 1;
-      }
-      update(){
-        this.x += this.vx; this.y += this.vy; this.a -= 0.02;
-      }
-    }
-    function animate(){
-      ctx.clearRect(0,0,W,H);
-      particles.forEach((p,i)=>{
-        p.update(); p.draw();
-        if(p.a <= 0) particles.splice(i,1);
-      });
-      requestAnimationFrame(animate);
-    }
-    document.addEventListener("mousemove", e=>{
-      for(let i=0; i<5; i++) particles.push(new Particle(e.clientX, e.clientY));
-    });
-    window.addEventListener("resize", ()=>{
-      W = window.innerWidth; H = window.innerHeight;
-      canvas.width = W; canvas.height = H;
-    });
-    animate();
-
-    // 生成逻辑
-    const buttons = document.querySelectorAll(".btn-group button");
-    const resultDiv = document.getElementById("result");
-
-    buttons.forEach(btn => {
+    // 按钮生成逻辑
+    document.querySelectorAll(".btn-group button").forEach(btn => {
       btn.addEventListener("click", async () => {
         const emotion = btn.dataset.emotion;
-        const color   = colorsList[Math.floor(Math.random()*colorsList.length)];
-        const flower  = flowersList[Math.floor(Math.random()*flowersList.length)];
-        const prompt  = `a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
-        resultDiv.innerHTML = `✨ 提示词：<code>${prompt}</code><br>正在生成…`;
+        const color = colorsList[Math.floor(Math.random()*colorsList.length)];
+        const flower = flowersList[Math.floor(Math.random()*flowersList.length)];
+        const prompt = `a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
+        const resDiv = document.getElementById("result");
+        resDiv.innerHTML = `✨ 提示词：<code>${prompt}</code><br>正在生成…`;
         try {
-          const res = await fetch("/api/generate", {
+          const r1 = await fetch("/api/generate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ jellyfish: prompt })
           });
-          const { generateUuid } = await res.json();
-          // 轮询状态
-          let count = 0, max = 40;
+          const { generateUuid } = await r1.json();
+          let count=0, max=40;
           const iv = setInterval(async () => {
             count++;
-            try {
-              const r2 = await fetch("/api/generate/status", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ generateUuid })
-              });
-              const data = await r2.json();
-              if (data.status === "done" && data.imageUrl) {
-                clearInterval(iv);
-                resultDiv.innerHTML = `<img src="${data.imageUrl}" alt="jellyfish result">`;
-              } else {
-                resultDiv.textContent = "⏳ 生成中…";
-              }
-              if (count >= max) {
-                clearInterval(iv);
-                resultDiv.textContent = "⚠️ 查询超时，请稍后再试。";
-              }
-            } catch (e) {
+            const r2 = await fetch("/api/generate/status", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ generateUuid })
+            });
+            const data = await r2.json();
+            if (data.status==="done" && data.imageUrl) {
               clearInterval(iv);
-              resultDiv.textContent = "❌ 查询失败：" + e.message;
+              resDiv.innerHTML = `<img src="${data.imageUrl}" alt="jellyfish">`;
+            } else {
+              resDiv.textContent = "⏳ 生成中…";
+            }
+            if (count>=max) {
+              clearInterval(iv);
+              resDiv.textContent = "⚠️ 查询超时，请稍后再试。";
             }
           }, 3000);
-        } catch (err) {
-          resultDiv.textContent = "❌ 提交失败：" + err.message;
+        } catch(err) {
+          document.getElementById("result").textContent = "❌ 提交失败：" + err.message;
         }
       });
     });
