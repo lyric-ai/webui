@@ -68,25 +68,41 @@
     }
 
     /* 按钮组（横排） */
-    .btn-group {
-      display:flex;
-      gap:20px;
-      flex-wrap: wrap;
-      justify-content: center;
-      margin-bottom: 60px;
-    }
-    .btn-group button {
-      display:flex; align-items:center; gap:8px;
-      padding:14px 28px; font-size:1.2rem; color:white;
-      background:linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%);
-      border:none; border-radius:30px;
-      cursor:pointer; transition:transform .2s,box-shadow .2s;
-    }
-    .btn-group button:hover {
-      transform:scale(1.1);
-      box-shadow:0 0 15px rgba(102,166,255,0.8);
-    }
-    .btn-icon { width:28px; height:28px; }
+   /* 通用 hover & 过渡保持不变 */
+.btn-group button {
+  display:flex;
+  align-items:center;
+  gap:8px;
+  padding:14px 28px;
+  font-size:1.2rem;
+  color:white;
+  border:none;
+  border-radius:30px;
+  cursor:pointer;
+  transition:transform .2s,box-shadow .2s;
+}
+/* hover 效果保持 */
+.btn-group button:hover {
+  transform:scale(1.1);
+  box-shadow:0 0 15px rgba(0,0,0,0.2);
+}
+
+/* 根据情绪分别指定背景渐变 */
+.btn-group button[data-emotion="happiness"] {
+  background: linear-gradient(135deg, #FFC0CB 0%, #FFB6C1 100%);
+}
+.btn-group button[data-emotion="anger"] {
+  background: linear-gradient(135deg, #E74C3C 0%, #FF6347 100%);
+}
+.btn-group button[data-emotion="sadness"] {
+  background: linear-gradient(135deg, #3498DB 0%, #5DADE2 100%);
+}
+.btn-group button[data-emotion="fear"] {
+  background: linear-gradient(135deg, #2ECC71 0%, #58D68D 100%);
+}
+.btn-group button[data-emotion="disgust"] {
+  background: linear-gradient(135deg, #F1C40F 0%, #F7DC6F 100%);
+}
 
     /* 结果区 */
     #result {
