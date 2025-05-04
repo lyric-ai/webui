@@ -10,7 +10,7 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
       width:100%; height:100%;
-      overflow:hidden;
+      overflow-y: auto; /* 允许竖直滚动 */
       background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
       font-family:'Quicksand',sans-serif;
       cursor:none;
@@ -45,12 +45,11 @@
     .jelly4 { left:80%; top:85%;  animation-duration:30s; animation-delay:3s; }
     .jelly5 { left:40%; top:105%; animation-duration:34s; animation-delay:7s; }
 
-    /* 顶部标题与描述 */
+    /* 顶部标题 & 描述 */
     h1 {
       position:absolute; top:20px; left:20px;
       font-family:'Great Vibes',cursive; font-size:2.5rem; font-weight:700;
-      color:white; text-shadow:0 0 10px rgba(255,255,255,0.8);
-      z-index:10;
+      color:white; text-shadow:0 0 10px rgba(255,255,255,0.8); z-index:10;
     }
     .description {
       position:absolute; top:70px; left:20px;
@@ -75,25 +74,23 @@
       transform:scale(1.05);
       box-shadow:0 0 15px rgba(102,166,255,0.7);
     }
-    .btn-icon {
-      width:24px; height:24px;
-    }
+    .btn-icon { width:24px; height:24px; }
 
     /* 结果区 */
     #result {
       position:absolute; top:200px; left:50%;
       transform:translateX(-50%);
-      width:60%; /* 50% viewport scaled result container */
-      transform-origin: top center;
-      display:flex; align-items:center; justify-content:center;
+      width:60%; /* 容器宽度 */
       background:rgba(255,255,255,0.08);
       backdrop-filter:blur(10px);
       border-radius:20px;
       padding:20px;
+      text-align:center;
       z-index:10;
     }
     #result img {
-      width:100%; height:auto;
+      width:50%;   /* 缩小到原来一半 */
+      height:auto;
       border-radius:12px;
       box-shadow:0 0 20px rgba(0,0,0,0.2);
       animation:fadeIn 1s;
@@ -113,14 +110,14 @@
   </style>
 </head>
 <body>
-  <!-- 漂浮背景元素 -->
+  <!-- 漂浮装饰 -->
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png" class="floating jelly2"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png" class="floating jelly3"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00049_.png" class="floating jelly4"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00050_.png" class="floating jelly5"/>
 
-  <!-- 粒子光标 -->
+  <!-- 粒子 & 光标 -->
   <canvas id="cursor-canvas"></canvas>
   <img id="cursor" src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/jellyfish.png" alt="cursor"/>
 
@@ -153,15 +150,15 @@
   <!-- 生成结果 -->
   <div id="result"></div>
 
-  <!-- 下载 -->
+  <!-- 下载按钮 -->
   <a id="downloadBtn" href="#" download="jellyfish.png">⬇️ 下载图片</a>
 
   <script>
     // 粒子拖尾
     const canvas = document.getElementById("cursor-canvas"), ctx = canvas.getContext("2d");
     let W = window.innerWidth, H = window.innerHeight;
-    canvas.width=W; canvas.height=H;
-    const particles = [], colors=["#fff","#ff9efc","#b1fff2","#ffd6a5"];
+    canvas.width = W; canvas.height = H;
+    const particles = [], colors = ["#fff","#ff9efc","#b1fff2","#ffd6a5"];
     class Particle {
       constructor(x,y){
         this.x=x; this.y=y; this.r=Math.random()*4+1;
@@ -169,15 +166,12 @@
         this.vx=(Math.random()-0.5)*3; this.vy=(Math.random()-0.5)*3;
       }
       draw(){
-        ctx.globalAlpha=this.a;
-        ctx.beginPath();
+        ctx.globalAlpha=this.a; ctx.beginPath();
         ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
         ctx.fillStyle=this.c; ctx.fill();
         ctx.globalAlpha=1;
       }
-      update(){
-        this.x+=this.vx; this.y+=this.vy; this.a-=0.02;
-      }
+      update(){ this.x+=this.vx; this.y+=this.vy; this.a-=0.02; }
     }
     function animate(){
       ctx.clearRect(0,0,W,H);
@@ -185,50 +179,47 @@
       requestAnimationFrame(animate);
     }
     document.addEventListener("mousemove", e=>{
-      // 更新自定义光标
-      const cur = document.getElementById("cursor");
-      cur.style.left=e.clientX+"px"; cur.style.top=e.clientY+"px";
-      // 生成粒子
+      document.getElementById("cursor").style.left=e.clientX+"px";
+      document.getElementById("cursor").style.top=e.clientY+"px";
       for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY));
     });
     window.addEventListener("resize", ()=>{
-      W=innerWidth; H=innerHeight;
-      canvas.width=W; canvas.height=H;
+      W=innerWidth; H=innerHeight; canvas.width=W; canvas.height=H;
     });
     animate();
 
     // 提示词列表
-    const colorsList=[/* …你的颜色数组… */];
-    const flowersList=[/* …你的花朵数组… */];
+    const colorsList = [/*…填入你的颜色数组…*/];
+    const flowersList= [/*…填入你的花朵数组…*/];
 
     // 按钮点击
     document.querySelectorAll(".btn-group button").forEach(btn=>{
       btn.addEventListener("click", async ()=>{
-        const emotion=btn.dataset.emotion;
-        const color=colorsList[Math.floor(Math.random()*colorsList.length)];
-        const flower=flowersList[Math.floor(Math.random()*flowersList.length)];
-        const prompt=`a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
-        const resDiv=document.getElementById("result");
-        resDiv.innerHTML=`✨ 提示词：<code>${prompt}</code><br>正在生成…`;
+        const emotion = btn.dataset.emotion;
+        const color = colorsList[Math.floor(Math.random()*colorsList.length)];
+        const flower = flowersList[Math.floor(Math.random()*flowersList.length)];
+        const prompt = `a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
+        const resDiv = document.getElementById("result");
+        resDiv.innerHTML = `✨ 提示词：<code>${prompt}</code><br>正在生成…`;
         try {
-          const r1=await fetch("/api/generate", {
+          const r1 = await fetch("/api/generate", {
             method:"POST", headers:{"Content-Type":"application/json"},
             body:JSON.stringify({jellyfish:prompt})
           });
-          const {generateUuid}=await r1.json();
+          const { generateUuid } = await r1.json();
           let count=0,max=40;
-          const iv=setInterval(async ()=>{
+          const iv = setInterval(async ()=>{
             count++;
-            const r2=await fetch("/api/generate/status", {
+            const r2 = await fetch("/api/generate/status", {
               method:"POST", headers:{"Content-Type":"application/json"},
               body:JSON.stringify({generateUuid})
             });
-            const data=await r2.json();
+            const data = await r2.json();
             if(data.status==="done"&&data.imageUrl){
               clearInterval(iv);
-              resDiv.innerHTML=`<img src="${data.imageUrl}" alt="result">`;
-              const dl=document.getElementById("downloadBtn");
-              dl.href=data.imageUrl; dl.style.display="inline-block";
+              resDiv.innerHTML = `<img src="${data.imageUrl}" alt="result">`;
+              const dl = document.getElementById("downloadBtn");
+              dl.href = data.imageUrl; dl.style.display="inline-block";
             } else {
               resDiv.textContent="⏳ 生成中…";
             }
