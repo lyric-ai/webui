@@ -1,123 +1,124 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>光拾</title>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    /* 重置 */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    /* Reset */
+    * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
-      width: 100%; height: 100%;
-      overflow: hidden;
+      width:100%; height:100%;
+      overflow:hidden;
       background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
-      font-family: 'Quicksand', sans-serif;
-      cursor: none;
-      position: relative;
+      font-family:'Quicksand',sans-serif;
+      cursor:none;
+      position:relative;
     }
 
-    /* 粒子光标 */
-    canvas#cursor-canvas {
-      position: fixed; top: 0; left: 0;
-      pointer-events: none; z-index: 9998;
-    }
-    #cursor {
-      position: fixed;
-      width: 32px; height: 32px;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-    }
-
-    /* 顶部 Header */
-    header {
-      position: absolute; top: 0; left: 0; right: 0;
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 40px; z-index: 10;
-    }
-    header h1 {
-      font-family: 'Great Vibes', cursive;
-      font-size: 2.5rem; font-weight: bold;
-      color: white; text-shadow: 0 0 10px rgba(255,255,255,0.8);
-    }
-    nav {
-      display: flex; gap: 20px;
-    }
-    .nav-button {
-      padding: 12px 24px;
-      font-size: 1rem; color: white;
-      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
-      border: none; border-radius: 30px;
-      cursor: pointer; transition: transform .2s, box-shadow .2s;
-    }
-    .nav-button:hover {
-      transform: scale(1.05);
-      box-shadow: 0 0 15px rgba(102,166,255,0.7);
-    }
-
-    /* 页首描述 */
-    .subtitle {
-      position: absolute; top: 80px; left: 40px;
-      color: white; font-size: 1.1rem; line-height: 1.6;
-      z-index: 10;
-      white-space: pre-wrap;
-    }
-
-    /* 主内容区 */
-    .hero {
-      position: absolute; top: 0; left: 0; right: 0; bottom: 0;
-      display: flex; align-items: center; justify-content: center;
-    }
-
-    /* 中间生成图像 */
-    #result {
-      max-width: 60%; max-height: 70%;
-      display: flex; align-items: center; justify-content: center;
-    }
-    #result img {
-      width: 100%; height: auto;
-      border-radius: 16px;
-      box-shadow: 0 0 20px rgba(0,0,0,0.2);
-      animation: fadeIn 1s;
-    }
-    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-
-    /* 下载按钮 */
-    #downloadBtn {
-      position: absolute; bottom: 30px; right: 30px;
-      display: none;
-      padding: 12px 24px; font-size: 1rem;
-      background: linear-gradient(135deg,#f6d365 0%,#fda085 100%);
-      color: white; text-decoration: none; border-radius: 20px;
-      box-shadow: 0 0 15px rgba(255,150,100,0.6);
-      z-index: 10;
-    }
-
-    /* 漂浮装饰 */
+    /* Floating decorations */
     .floating {
-      position: fixed; width: 120px; pointer-events: none; z-index: 1;
+      position: fixed; width:120px; pointer-events:none; z-index:1;
       animation: floatAnim linear infinite;
     }
     @keyframes floatAnim {
-      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
-      10%  { opacity: 0.6; }
-      50%  { opacity: 1; }
-      100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
+      0%   { transform: translateY(0) rotate(0deg); opacity:0;}
+      10%  { opacity:0.6;}
+      50%  { opacity:1;}
+      100% { transform: translateY(-120vh) rotate(360deg); opacity:0;}
     }
     .jelly1 { left:5%;  top:90%;  animation-duration:28s; animation-delay:0s; }
     .jelly2 { left:60%; top:100%; animation-duration:32s; animation-delay:5s; }
     .jelly3 { left:20%; top:95%;  animation-duration:36s; animation-delay:10s; }
     .jelly4 { left:80%; top:85%;  animation-duration:30s; animation-delay:3s; }
     .jelly5 { left:40%; top:105%; animation-duration:34s; animation-delay:7s; }
+
+    /* Custom cursor + particles */
+    #cursor { position: fixed; width:32px; height:32px; pointer-events:none; transform:translate(-50%,-50%); z-index:9999; }
+    canvas#cursor-canvas { position: fixed; top:0; left:0; pointer-events:none; z-index:9998; }
+
+    /* Header */
+    header {
+      position: absolute; top:0; left:0; right:0;
+      display: flex; align-items:center; justify-content: space-between;
+      padding: 20px 40px; z-index:10;
+    }
+    header h1 {
+      font-family:'Great Vibes', cursive;
+      font-size:2.5rem; font-weight:700;
+      color:white; text-shadow:0 0 10px rgba(255,255,255,0.8);
+    }
+    nav {
+      display: flex; gap: 20px;
+    }
+    .nav-button {
+      padding: 14px 28px;
+      font-size:1.1rem; color:white;
+      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+      border:none; border-radius:30px;
+      cursor:pointer; transition: transform .2s, box-shadow .2s;
+    }
+    .nav-button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 0 15px rgba(102,166,255,0.7);
+    }
+
+    /* Subtitle */
+    .subtitle {
+      position: absolute; top:80px; left:40px;
+      color:white; font-size:1.1rem; line-height:1.6;
+      z-index:10;
+      white-space: pre-wrap;
+    }
+
+    /* Main hero area */
+    .hero {
+      position: absolute; top:0; left:0; right:0; bottom:0;
+      display:flex; align-items:center; justify-content:center;
+    }
+    #result {
+      max-width:50%; max-height:70%;
+      display:flex; align-items:center; justify-content:center;
+      background: rgba(255,255,255,0.08);
+      border-radius:20px;
+      backdrop-filter: blur(10px);
+      padding:20px;
+    }
+    #result img {
+      width:100%; height:auto;
+      border-radius:12px;
+      animation: fadeIn 1s ease-in-out;
+      box-shadow:0 0 20px rgba(0,0,0,0.2);
+    }
+    @keyframes fadeIn { from{opacity:0;} to{opacity:1;} }
+
+    /* Download button */
+    #downloadBtn {
+      position: absolute; bottom:30px; right:30px;
+      display:none;
+      padding:12px 24px; font-size:1rem;
+      background: linear-gradient(135deg,#f6d365 0%,#fda085 100%);
+      color:white; text-decoration:none; border-radius:20px;
+      box-shadow:0 0 15px rgba(255,150,100,0.6);
+      z-index:10;
+    }
   </style>
 </head>
 <body>
-  <!-- 粒子光标 & 自定义光标 -->
-  <canvas id="cursor-canvas"></canvas>
-  <img id="cursor" src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/jellyfish.png" alt="cursor">
 
-  <!-- Header -->
+  <!-- Floating decorations -->
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png" class="floating jelly2"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png" class="floating jelly3"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00049_.png" class="floating jelly4"/>
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00050_.png" class="floating jelly5"/>
+
+  <!-- Custom cursor & particles -->
+  <canvas id="cursor-canvas"></canvas>
+  <img id="cursor" src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/jellyfish.png" alt="cursor"/>
+
+  <!-- Header with title and nav -->
   <header>
     <h1>光拾</h1>
     <nav>
@@ -129,28 +130,22 @@
     </nav>
   </header>
 
-  <!-- 副标题 -->
+  <!-- Subtitle -->
   <div class="subtitle">
 描述你当下的情绪，  
 光拾将为你生成你的专属水母
   </div>
 
-  <!-- 漂浮装饰 -->
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1">
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png" class="floating jelly2">
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png" class="floating jelly3">
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00049_.png" class="floating jelly4">
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00050_.png" class="floating jelly5">
-
-  <!-- 主内容区 -->
+  <!-- Hero: result image -->
   <div class="hero">
     <div id="result"></div>
     <a id="downloadBtn" href="#" download="jellyfish.png">⬇️ 下载图片</a>
   </div>
 
   <script>
-    // 粒子拖尾
-    const canvas = document.getElementById("cursor-canvas"), ctx = canvas.getContext("2d");
+    // Particle cursor
+    const canvas = document.getElementById("cursor-canvas"),
+          ctx = canvas.getContext("2d");
     let W = window.innerWidth, H = window.innerHeight;
     canvas.width = W; canvas.height = H;
     const particles = [], colors = ["#ffffff","#ff9efc","#b1fff2","#ffd6a5"];
@@ -164,43 +159,36 @@
         this.vy=(Math.random()-0.5)*3;
       }
       draw(){
-        ctx.globalAlpha = this.a;
+        ctx.globalAlpha=this.a;
         ctx.beginPath();
         ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
         ctx.fillStyle=this.c; ctx.fill();
-        ctx.globalAlpha = 1;
+        ctx.globalAlpha=1;
       }
-      update(){
-        this.x += this.vx; this.y += this.vy; this.a -= 0.02;
-      }
+      update(){ this.x+=this.vx; this.y+=this.vy; this.a-=0.02; }
     }
     function animate(){
       ctx.clearRect(0,0,W,H);
-      particles.forEach((p,i)=>{
-        p.update(); p.draw();
-        if(p.a<=0) particles.splice(i,1);
-      });
+      particles.forEach((p,i)=>{ p.update(); p.draw(); if(p.a<=0) particles.splice(i,1); });
       requestAnimationFrame(animate);
     }
     document.addEventListener("mousemove", e=>{
-      // 光标位置
       const cur = document.getElementById("cursor");
       cur.style.left = e.clientX + "px";
       cur.style.top  = e.clientY + "px";
-      // 粒子
       for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY));
     });
     window.addEventListener("resize", ()=>{
       W = innerWidth; H = innerHeight;
-      canvas.width = W; canvas.height = H;
+      canvas.width=W; canvas.height=H;
     });
     animate();
 
-    // 提示词列表请填入
-    const colorsList = [/*...*/];
-    const flowersList = [/*...*/];
+    // Your color & flower lists
+    const colorsList = [/* …填入你的颜色数组… */];
+    const flowersList= [/* …填入你的花朵数组… */];
 
-    // 按钮点击逻辑
+    // Nav button click logic
     document.querySelectorAll('nav .nav-button').forEach(btn=>{
       btn.addEventListener('click', async ()=>{
         const emotion = btn.dataset.emotion;
