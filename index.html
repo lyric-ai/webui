@@ -9,8 +9,11 @@
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body {
       width:100%; height:100%; overflow:hidden;
-      background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
+      background:linear-gradient(to bottom, #c9f0ff, #a1c4fd);
       font-family:'Quicksand',sans-serif; cursor:none; position:relative;
+    }
+    canvas#cursor-canvas {
+      position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
     }
     h1 {
       position:relative; z-index:10;
@@ -24,36 +27,33 @@
       background:rgba(255,255,255,0.1); border-radius:20px;
       backdrop-filter:blur(15px); text-align:center; color:white;
     }
-    button {
-      padding:12px 30px; font-size:1rem; border:none;
-      border-radius:30px;
-      background: linear-gradient(135deg,#a18cd1 0%,#fbc2eb 100%);
-      color:white; cursor:pointer;
-      box-shadow:0 0 15px rgba(252,197,255,0.5);
-      animation:pulse 2.5s infinite;
+    .btn-group {
+      display:flex; justify-content:space-around; flex-wrap:wrap; gap:10px; margin-bottom:1rem;
     }
-    button:hover {
-      transform:scale(1.05);
-      box-shadow:0 0 25px rgba(252,197,255,0.9);
+    .btn-group button {
+      flex:1; min-width:80px;
+      padding:10px 15px; font-size:1rem; border:none;
+      border-radius:20px; background:linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%);
+      color:white; cursor:pointer; box-shadow:0 0 12px rgba(102,166,255,0.5);
+      transition:transform .2s,box-shadow .2s;
     }
-    @keyframes pulse {
-      0%   {box-shadow:0 0 15px rgba(252,197,255,0.4);}
-      50%  {box-shadow:0 0 25px rgba(252,197,255,0.8);}
-      100% {box-shadow:0 0 15px rgba(252,197,255,0.4);}
+    .btn-group button:hover {
+      transform:scale(1.1);
+      box-shadow:0 0 20px rgba(102,166,255,0.8);
+    }
+    #result {
+      margin-top:1rem; position:relative; z-index:10;
+      font-size:1rem; word-break:break-word;
     }
     #result img {
-      margin-top:1.5rem; max-width:100%;
+      margin-top:1rem; max-width:100%;
       border-radius:12px; box-shadow:0 0 15px rgba(0,0,0,0.2);
-      position:relative; z-index:10;
       animation:fadeIn 1s ease-in-out;
     }
-    @keyframes fadeIn {from{opacity:0;}to{opacity:1;}}
-    canvas#cursor-canvas {
-      position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
-    }
+    @keyframes fadeIn { from{opacity:0}to{opacity:1} }
     .floating {
-      position: fixed; width:120px; z-index:1; pointer-events:none;
-      animation: floatAnim linear infinite;
+      position:fixed; width:120px; z-index:1; pointer-events:none;
+      animation:floatAnim linear infinite;
     }
     @keyframes floatAnim {
       0%   {transform:translateY(0) rotate(0deg); opacity:0;}
@@ -69,10 +69,7 @@
   </style>
 </head>
 <body>
-  <!-- 光标粒子画布 -->
   <canvas id="cursor-canvas"></canvas>
-
-  <!-- 漂浮图像 -->
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png" class="floating jelly2"/>
   <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png" class="floating jelly3"/>
@@ -81,115 +78,93 @@
 
   <h1>光拾水母生成器</h1>
   <div class="container">
-    <p>点击下方按钮，随机唤醒一只梦幻水母 🌌</p>
-    <button onclick="generate()">随机生成水母</button>
+    <p>选择一种情绪，光拾将为你随机生成梦幻水母图像：</p>
+    <div class="btn-group">
+      <button data-emotion="快乐">快乐</button>
+      <button data-emotion="悲伤">悲伤</button>
+      <button data-emotion="愤怒">愤怒</button>
+      <button data-emotion="恐惧">恐惧</button>
+      <button data-emotion="厌恶">厌恶</button>
+    </div>
     <div id="result"></div>
   </div>
 
   <script>
-    // 预设提示词列表
-    const prompts = [
-      "a glowing jellyfish drifting in a purple ocean",
-      "neon jellyfish under a starry sky",
-      "fantasy pastel jellyfish surrounded by bubbles",
-      "ethereal jellyfish illuminated by moonlight",
-      "dreamlike jellyfish in cosmic sea",
-      "bioluminescent jellyfish in dark waters",
-      "translucent jellyfish floating amidst coral reef",
-      "surreal jellyfish with rainbow tentacles",
-      "celestial jellyfish in nebula background",
-      "soft pastel jellyfish with glowing aura"
-    ];
-
-    // 粒子光标效果
-    const canvas = document.getElementById("cursor-canvas");
-    const ctx = canvas.getContext("2d");
-    let W = window.innerWidth, H = window.innerHeight;
-    canvas.width = W; canvas.height = H;
+    // 光标粒子拖尾
+    const canvas = document.getElementById("cursor-canvas"), ctx = canvas.getContext("2d");
+    let W = window.innerWidth, H = window.innerHeight; canvas.width=W; canvas.height=H;
     const particles = [], colors=["#fff","#ff9efc","#b1fff2","#ffd6a5"];
     class Particle {
-      constructor(x,y){
-        this.x=x; this.y=y;
-        this.r=Math.random()*4+1;
-        this.c=colors[Math.floor(Math.random()*colors.length)];
-        this.a=1;
-        this.vx=(Math.random()-0.5)*3;
-        this.vy=(Math.random()-0.5)*3;
+      constructor(x,y){ this.x=x; this.y=y; this.r=Math.random()*4+1;
+        this.c=colors[Math.floor(Math.random()*colors.length)]; this.a=1;
+        this.vx=(Math.random()-0.5)*3; this.vy=(Math.random()-0.5)*3;
       }
-      draw(){
-        ctx.globalAlpha=this.a;
-        ctx.beginPath();
-        ctx.arc(this.x,this.y,this.r,0,2*Math.PI);
-        ctx.fillStyle=this.c; ctx.fill();
+      draw(){ ctx.globalAlpha=this.a; ctx.beginPath();
+        ctx.arc(this.x,this.y,this.r,0,2*Math.PI); ctx.fillStyle=this.c; ctx.fill();
         ctx.globalAlpha=1;
       }
-      update(){
-        this.x+=this.vx; this.y+=this.vy; this.a-=0.02;
-      }
+      update(){ this.x+=this.vx; this.y+=this.vy; this.a-=0.02; }
     }
-    function loop(){
-      ctx.clearRect(0,0,W,H);
-      particles.forEach((p,i)=>{
-        p.update(); p.draw();
+    function loop(){ ctx.clearRect(0,0,W,H);
+      particles.forEach((p,i)=>{ p.update(); p.draw();
         if(p.a<=0) particles.splice(i,1);
-      });
-      requestAnimationFrame(loop);
+      }); requestAnimationFrame(loop);
     }
-    document.addEventListener("mousemove",e=>{
-      for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY));
-    });
-    window.addEventListener("resize",()=>{
-      W=window.innerWidth; H=window.innerHeight;
-      canvas.width=W; canvas.height=H;
-    });
+    document.addEventListener("mousemove",e=>{ for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY)); });
+    window.addEventListener("resize",()=>{ W=innerWidth; H=innerHeight; canvas.width=W; canvas.height=H; });
     loop();
 
-    // 核心：随机生成
-    async function generate(){
-      const prompt = prompts[Math.floor(Math.random()*prompts.length)];
-      const resDiv = document.getElementById("result");
-      resDiv.innerHTML = `✨ 使用提示：<code>${prompt}</code>，正在生成…`;
-      try {
-        const r = await fetch("/api/generate", {
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body: JSON.stringify({ jellyfish: prompt })
-        });
-        const { generateUuid } = await r.json();
-        pollStatus(generateUuid);
-      } catch(err){
-        resDiv.innerHTML = "❌ 提交失败：" + err.message;
-      }
-    }
+    // 预设颜色与花朵
+    const colorsList = ["蓝色","红色","紫色","粉色","金色","绿色","银色"];
+    const flowers = ["玫瑰","百合","牡丹","樱花","菊花","向日葵"];
+    const buttons = document.querySelectorAll(".btn-group button");
+    const resultDiv = document.getElementById("result");
 
-    async function pollStatus(uuid){
-      const resDiv = document.getElementById("result");
-      let cnt=0, max=40;
-      const iv = setInterval(async ()=>{
-        cnt++;
+    buttons.forEach(btn=>{
+      btn.addEventListener("click", async ()=>{
+        const emotion = btn.dataset.emotion;
+        const color = colorsList[Math.floor(Math.random()*colorsList.length)];
+        const flower = flowers[Math.floor(Math.random()*flowers.length)];
+        const prompt = `一只${color}的水母，一朵${flower}，${emotion}`;
+        resultDiv.innerHTML = `✨ 提示词：<code>${prompt}</code><br>正在生成…`;
         try {
-          const r = await fetch("/api/generate/status", {
+          const res = await fetch("/api/generate", {
             method:"POST",
             headers:{"Content-Type":"application/json"},
-            body: JSON.stringify({ generateUuid: uuid })
+            body: JSON.stringify({ jellyfish: prompt })
           });
-          const data = await r.json();
-          if(data.status==="done" && data.imageUrl){
-            clearInterval(iv);
-            resDiv.innerHTML = `<img src="${data.imageUrl}" alt="jellyfish result">`;
-          } else {
-            resDiv.textContent = "⏳ 生成中…";
-          }
-          if(cnt>=max){
-            clearInterval(iv);
-            resDiv.textContent = "⚠️ 查询超时，请稍后再试。";
-          }
-        } catch(e){
-          clearInterval(iv);
-          resDiv.innerHTML = "❌ 查询失败：" + e.message;
+          const { generateUuid } = await res.json();
+          // 轮询状态
+          let count=0, max=40;
+          const iv = setInterval(async ()=>{
+            count++;
+            try {
+              const r2 = await fetch("/api/generate/status", {
+                method:"POST",
+                headers:{"Content-Type":"application/json"},
+                body: JSON.stringify({ generateUuid })
+              });
+              const data = await r2.json();
+              if(data.status==="done" && data.imageUrl){
+                clearInterval(iv);
+                resultDiv.innerHTML = `<img src="${data.imageUrl}" alt="jellyfish">`;
+              } else {
+                resultDiv.textContent = "⏳ 生成中…";
+              }
+              if(count>=max){
+                clearInterval(iv);
+                resultDiv.textContent = "⚠️ 查询超时，请稍后再试。";
+              }
+            } catch(e){
+              clearInterval(iv);
+              resultDiv.textContent = "❌ 查询失败：" + e.message;
+            }
+          },3000);
+        } catch(err){
+          resultDiv.textContent = "❌ 提交失败：" + err.message;
         }
-      }, 3000);
-    }
+      });
+    });
   </script>
 </body>
 </html>
