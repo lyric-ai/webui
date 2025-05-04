@@ -6,161 +6,204 @@
   <title>光拾水母生成器</title>
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Quicksand:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
     html, body {
-      width:100%; height:100%; overflow:hidden;
-      background:linear-gradient(to bottom, #c9f0ff, #a1c4fd);
-      font-family:'Quicksand',sans-serif; cursor:none; position:relative;
+      width: 100%; height: 100%; overflow: hidden;
+      background: linear-gradient(to bottom, #c9f0ff, #a1c4fd);
+      font-family: 'Quicksand', sans-serif; cursor: none; position: relative;
     }
     canvas#cursor-canvas {
-      position:fixed; top:0; left:0; pointer-events:none; z-index:9999;
+      position: fixed; top: 0; left: 0; pointer-events: none; z-index: 9999;
     }
     h1 {
-      position:relative; z-index:10;
-      font-family:'Great Vibes',cursive; font-size:3.5rem;
-      text-align:center; margin-top:2rem;
-      color:white; text-shadow:0 0 15px rgba(255,255,255,0.7);
+      position: relative; z-index: 10;
+      font-family: 'Great Vibes', cursive; font-size: 3.5rem;
+      text-align: center; margin-top: 2rem;
+      color: white; text-shadow: 0 0 15px rgba(255,255,255,0.7);
     }
     .container {
-      position:relative; z-index:10;
-      max-width:600px; margin:3rem auto; padding:2rem;
-      background:rgba(255,255,255,0.1); border-radius:20px;
-      backdrop-filter:blur(15px); text-align:center; color:white;
+      position: relative; z-index: 10;
+      max-width: 600px; margin: 3rem auto; padding: 2rem;
+      background: rgba(255,255,255,0.1); border-radius: 20px;
+      backdrop-filter: blur(15px); text-align: center; color: white;
     }
     .btn-group {
-      display:flex; justify-content:space-around; flex-wrap:wrap; gap:10px; margin-bottom:1rem;
+      display: flex; justify-content: space-around; flex-wrap: wrap; gap: 10px; margin-bottom: 1rem;
     }
     .btn-group button {
-      flex:1; min-width:80px;
-      padding:10px 15px; font-size:1rem; border:none;
-      border-radius:20px; background:linear-gradient(135deg,#89f7fe 0%,#66a6ff 100%);
-      color:white; cursor:pointer; box-shadow:0 0 12px rgba(102,166,255,0.5);
-      transition:transform .2s,box-shadow .2s;
+      flex: 1; min-width: 80px;
+      padding: 10px 15px; font-size: 1rem; border: none;
+      border-radius: 20px;
+      background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%);
+      color: white; cursor: pointer;
+      box-shadow: 0 0 12px rgba(102,166,255,0.5);
+      transition: transform .2s, box-shadow .2s;
     }
     .btn-group button:hover {
-      transform:scale(1.1);
-      box-shadow:0 0 20px rgba(102,166,255,0.8);
+      transform: scale(1.1);
+      box-shadow: 0 0 20px rgba(102,166,255,0.8);
     }
     #result {
-      margin-top:1rem; position:relative; z-index:10;
-      font-size:1rem; word-break:break-word;
+      margin-top: 1rem; position: relative; z-index: 10;
+      font-size: 1rem; word-break: break-word;
     }
     #result img {
-      margin-top:1rem; max-width:100%;
-      border-radius:12px; box-shadow:0 0 15px rgba(0,0,0,0.2);
-      animation:fadeIn 1s ease-in-out;
+      margin-top: 1rem; max-width: 100%;
+      border-radius: 12px; box-shadow: 0 0 15px rgba(0,0,0,0.2);
+      animation: fadeIn 1s ease-in-out;
     }
-    @keyframes fadeIn { from{opacity:0}to{opacity:1} }
+    @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
     .floating {
-      position:fixed; width:120px; z-index:1; pointer-events:none;
-      animation:floatAnim linear infinite;
+      position: fixed; width: 120px; z-index: 1; pointer-events: none;
+      animation: floatAnim linear infinite;
     }
     @keyframes floatAnim {
-      0%   {transform:translateY(0) rotate(0deg); opacity:0;}
-      10%  {opacity:0.6;}
-      50%  {opacity:1;}
-      100% {transform:translateY(-120vh) rotate(360deg); opacity:0;}
+      0%   { transform: translateY(0) rotate(0deg); opacity: 0; }
+      10%  { opacity: 0.6; }
+      50%  { opacity: 1; }
+      100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
     }
-    .jelly1 { left:5%;  top:90%; animation-duration:28s; animation-delay:0s; }
-    .jelly2 { left:60%; top:100%;animation-duration:32s; animation-delay:5s; }
-    .jelly3 { left:20%; top:95%; animation-duration:36s; animation-delay:10s; }
-    .jelly4 { left:80%; top:85%; animation-duration:30s; animation-delay:3s; }
-    .jelly5 { left:40%; top:105%;animation-duration:34s; animation-delay:7s; }
+    .jelly1 { left: 5%;  top: 90%;  animation-duration: 28s; animation-delay: 0s; }
+    .jelly2 { left: 60%; top: 100%; animation-duration: 32s; animation-delay: 5s; }
+    .jelly3 { left: 20%; top: 95%;  animation-duration: 36s; animation-delay: 10s; }
+    .jelly4 { left: 80%; top: 85%;  animation-duration: 30s; animation-delay: 3s; }
+    .jelly5 { left: 40%; top: 105%; animation-duration: 34s; animation-delay: 7s; }
   </style>
 </head>
 <body>
+  <!-- 粒子光标 Canvas -->
   <canvas id="cursor-canvas"></canvas>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png" class="floating jelly2"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png" class="floating jelly3"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00049_.png" class="floating jelly4"/>
-  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00050_.png" class="floating jelly5"/>
+
+  <!-- 漂浮装饰图像 -->
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00047_.png" class="floating jelly1" />
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/d483bc60-04b9-4970-8e2a-343b13822e62.png" class="floating jelly2" />
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00048_.png" class="floating jelly3" />
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00049_.png" class="floating jelly4" />
+  <img src="https://raw.githubusercontent.com/lyric-ai/webui/main/public/ComfyUI_00050_.png" class="floating jelly5" />
 
   <h1>光拾水母生成器</h1>
   <div class="container">
     <p>选择一种情绪，光拾将为你随机生成梦幻水母图像：</p>
     <div class="btn-group">
-      <button data-emotion="快乐">快乐</button>
-      <button data-emotion="悲伤">悲伤</button>
-      <button data-emotion="愤怒">愤怒</button>
-      <button data-emotion="恐惧">恐惧</button>
-      <button data-emotion="厌恶">厌恶</button>
+      <button data-emotion="happiness">快乐</button>
+      <button data-emotion="sadness">悲伤</button>
+      <button data-emotion="anger">愤怒</button>
+      <button data-emotion="fear">恐惧</button>
+      <button data-emotion="disgust">厌恶</button>
     </div>
     <div id="result"></div>
   </div>
 
   <script>
-    // 光标粒子拖尾
-    const canvas = document.getElementById("cursor-canvas"), ctx = canvas.getContext("2d");
-    let W = window.innerWidth, H = window.innerHeight; canvas.width=W; canvas.height=H;
-    const particles = [], colors=["#fff","#ff9efc","#b1fff2","#ffd6a5"];
-    class Particle {
-      constructor(x,y){ this.x=x; this.y=y; this.r=Math.random()*4+1;
-        this.c=colors[Math.floor(Math.random()*colors.length)]; this.a=1;
-        this.vx=(Math.random()-0.5)*3; this.vy=(Math.random()-0.5)*3;
-      }
-      draw(){ ctx.globalAlpha=this.a; ctx.beginPath();
-        ctx.arc(this.x,this.y,this.r,0,2*Math.PI); ctx.fillStyle=this.c; ctx.fill();
-        ctx.globalAlpha=1;
-      }
-      update(){ this.x+=this.vx; this.y+=this.vy; this.a-=0.02; }
-    }
-    function loop(){ ctx.clearRect(0,0,W,H);
-      particles.forEach((p,i)=>{ p.update(); p.draw();
-        if(p.a<=0) particles.splice(i,1);
-      }); requestAnimationFrame(loop);
-    }
-    document.addEventListener("mousemove",e=>{ for(let i=0;i<5;i++) particles.push(new Particle(e.clientX,e.clientY)); });
-    window.addEventListener("resize",()=>{ W=innerWidth; H=innerHeight; canvas.width=W; canvas.height=H; });
-    loop();
+    // 颜色与花朵列表
+    const colorsList = [
+      "blue-purple","blue and yellow spotted","white luminescent-spotted",
+      "pale pink","yellow-green","white-spotted","sky blue","white-blue",
+      "blue-gray","white and yellow","pale blue with orange edges","lavender",
+      "light royal blue","pale emerald green","yellowish-purple","speckled white",
+      "white-and-yellow","purple-blue spotted","yellow","crimson","pinkish-white",
+      "royal blue","golden","pale purple","wheat yellow","neon green","red",
+      "red-and-blue","light pink","yellowish-golden","mint green",
+      "orange-and-blue","light green","pink-and-white","jadeite green",
+      "pinkish-yellow","lemon-yellow","purple-and-white","purple-pink-white",
+      "yellowish-red","brown pattern","pale yellow","greenish-blue",
+      "pomegranate red","ruby red","sapphire","pale yellowish-green"
+    ];
+    const flowersList = [
+      "rose","lily","peony","cherry blossom","sunflower","orchid",
+      "delphinium","hydrangea","daisy","calla lily","hyacinth","wisteria",
+      "lotus","carnation","anemone","phalaenopsis","lily of the valley",
+      "aloe","hibiscus","primrose"
+    ];
 
-    // 预设颜色与花朵
-    const colorsList = ["蓝色","红色","紫色","粉色","金色","绿色","银色"];
-    const flowers = ["玫瑰","百合","牡丹","樱花","菊花","向日葵"];
+    // 粒子光标效果
+    const canvas = document.getElementById("cursor-canvas");
+    const ctx = canvas.getContext("2d");
+    let W = window.innerWidth, H = window.innerHeight;
+    canvas.width = W; canvas.height = H;
+    const particles = [], colors = ["#fff","#ff9efc","#b1fff2","#ffd6a5"];
+    class Particle {
+      constructor(x,y){
+        this.x = x; this.y = y;
+        this.r = Math.random()*4 + 1;
+        this.c = colors[Math.floor(Math.random()*colors.length)];
+        this.a = 1;
+        this.vx = (Math.random()-0.5)*3;
+        this.vy = (Math.random()-0.5)*3;
+      }
+      draw(){
+        ctx.globalAlpha = this.a;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.r, 0, 2*Math.PI);
+        ctx.fillStyle = this.c; ctx.fill();
+        ctx.globalAlpha = 1;
+      }
+      update(){
+        this.x += this.vx; this.y += this.vy; this.a -= 0.02;
+      }
+    }
+    function animate(){
+      ctx.clearRect(0,0,W,H);
+      particles.forEach((p,i)=>{
+        p.update(); p.draw();
+        if(p.a <= 0) particles.splice(i,1);
+      });
+      requestAnimationFrame(animate);
+    }
+    document.addEventListener("mousemove", e=>{
+      for(let i=0; i<5; i++) particles.push(new Particle(e.clientX, e.clientY));
+    });
+    window.addEventListener("resize", ()=>{
+      W = window.innerWidth; H = window.innerHeight;
+      canvas.width = W; canvas.height = H;
+    });
+    animate();
+
+    // 生成逻辑
     const buttons = document.querySelectorAll(".btn-group button");
     const resultDiv = document.getElementById("result");
 
-    buttons.forEach(btn=>{
-      btn.addEventListener("click", async ()=>{
+    buttons.forEach(btn => {
+      btn.addEventListener("click", async () => {
         const emotion = btn.dataset.emotion;
-        const color = colorsList[Math.floor(Math.random()*colorsList.length)];
-        const flower = flowers[Math.floor(Math.random()*flowers.length)];
-        const prompt = `一只${color}的水母，一朵${flower}，${emotion}`;
+        const color   = colorsList[Math.floor(Math.random()*colorsList.length)];
+        const flower  = flowersList[Math.floor(Math.random()*flowersList.length)];
+        const prompt  = `a translucent ${color} jellyfish and a ${flower}, ${emotion}`;
         resultDiv.innerHTML = `✨ 提示词：<code>${prompt}</code><br>正在生成…`;
         try {
           const res = await fetch("/api/generate", {
-            method:"POST",
-            headers:{"Content-Type":"application/json"},
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ jellyfish: prompt })
           });
           const { generateUuid } = await res.json();
           // 轮询状态
-          let count=0, max=40;
-          const iv = setInterval(async ()=>{
+          let count = 0, max = 40;
+          const iv = setInterval(async () => {
             count++;
             try {
               const r2 = await fetch("/api/generate/status", {
-                method:"POST",
-                headers:{"Content-Type":"application/json"},
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ generateUuid })
               });
               const data = await r2.json();
-              if(data.status==="done" && data.imageUrl){
+              if (data.status === "done" && data.imageUrl) {
                 clearInterval(iv);
-                resultDiv.innerHTML = `<img src="${data.imageUrl}" alt="jellyfish">`;
+                resultDiv.innerHTML = `<img src="${data.imageUrl}" alt="jellyfish result">`;
               } else {
                 resultDiv.textContent = "⏳ 生成中…";
               }
-              if(count>=max){
+              if (count >= max) {
                 clearInterval(iv);
                 resultDiv.textContent = "⚠️ 查询超时，请稍后再试。";
               }
-            } catch(e){
+            } catch (e) {
               clearInterval(iv);
               resultDiv.textContent = "❌ 查询失败：" + e.message;
             }
-          },3000);
-        } catch(err){
+          }, 3000);
+        } catch (err) {
           resultDiv.textContent = "❌ 提交失败：" + err.message;
         }
       });
